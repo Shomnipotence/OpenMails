@@ -1,19 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
+﻿using System.Reflection;
 using Microsoft.Identity.Client;
-using Microsoft.Identity.Client.NativeInterop;
-
-#nullable enable
 
 namespace OpenMails.Services
 {
-    public class MailLoginService
+    public class OutlookAuthService
     {
         static readonly string s_outlookLoginInstance = "https://login.microsoftonline.com/";
         static readonly string[] s_outlookLoginScopes = new string[] { "Mail.ReadWrite", "offline_access" };
@@ -25,7 +15,7 @@ namespace OpenMails.Services
         /// </summary>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        private async Task<IMailService?> GetLoginedOutlookServiceAsync(
+        public async Task<IMailService?> GetLoginedServiceAsync(
             CancellationToken cancellationToken = default)
         {
             try
@@ -43,7 +33,7 @@ namespace OpenMails.Services
         }
 
 
-        public MailLoginService()
+        public OutlookAuthService()
         {
             _outlookLoginClient = PublicClientApplicationBuilder.Create(AppSecrets.MicrosoftGraphClientId)
                 .WithClientName("OpenMails")
@@ -55,23 +45,11 @@ namespace OpenMails.Services
         }
 
         /// <summary>
-        /// 获取所有已登录的邮件服务
-        /// </summary>
-        /// <param name="cancellationToken"></param>
-        /// <returns></returns>
-        public async IAsyncEnumerable<IMailService> GetLoginedMailServices(
-            [EnumeratorCancellation] CancellationToken cancellationToken = default)
-        {
-            if (await GetLoginedOutlookServiceAsync(cancellationToken) is IMailService outlookService)
-                yield return outlookService;
-        }
-
-        /// <summary>
         /// 登陆 Outlook 并取得其邮件服务
         /// </summary>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async Task<IMailService?> LoginOutlookAsync(
+        public async Task<IMailService?> LoginAsync(
             CancellationToken cancellationToken = default)
         {
             AuthenticationResult? authResult = null;

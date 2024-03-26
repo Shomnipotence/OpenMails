@@ -30,7 +30,7 @@ namespace OpenMails
         private static IServiceProvider BuildServiceProvider()
         {
             return new ServiceCollection()
-                .AddSingleton<MailLoginService>()
+                .AddSingleton<MailAuthService>()
                 .BuildServiceProvider();
         }
 

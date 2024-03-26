@@ -41,7 +41,7 @@ namespace OpenMails
             try
             {
                 var service = await App.Services
-                    .GetRequiredService<MailLoginService>()
+                    .GetRequiredService<MailAuthService>()
                     .LoginOutlookAsync();
 
                 StringBuilder sb = new();
