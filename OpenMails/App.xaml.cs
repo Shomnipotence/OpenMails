@@ -31,6 +31,7 @@ namespace OpenMails
         {
             return new ServiceCollection()
                 .AddSingleton<MailAuthService>()
+                .AddSingleton<OutlookAuthService>()
                 .BuildServiceProvider();
         }
 
