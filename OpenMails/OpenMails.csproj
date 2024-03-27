@@ -205,7 +205,4 @@
   <Target Name="AfterBuild">
   </Target>
   -->
-  <Target Name="CheckAppSecretsExists" BeforeTargets="Build">
-    <Error Condition="!Exists('$(ProjectDir)\AppSecrets.ini')" Text="'AppSecrets.ini' 不存在, 请按照 'AppSecrets.Template.ini' 的说明, 创建 'AppSecrets.ini', 填入所需信息再重新构建" />
-  </Target>
 </Project>
