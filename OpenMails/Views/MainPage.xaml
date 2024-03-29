@@ -8,19 +8,26 @@
     xmlns:v="using:OpenMails.Views"
     xmlns:vm="using:OpenMails.ViewModels"
     xmlns:services="using:OpenMails.Services"
+    xmlns:i="using:Microsoft.Xaml.Interactivity"
+    xmlns:mybehaviors="using:OpenMails.Behaviors"
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
     <Grid>
-        <NavigationView>
+        <NavigationView MenuItemsSource="{x:Bind ViewModel.NavigationViewItems,Mode=OneWay}">
             <NavigationView.PaneCustomContent>
-                <ListView ItemsSource="{x:Bind ViewModel.MailServices}">
+                <ListView ItemsSource="{x:Bind ViewModel.MailServices,Mode=OneWay}"
+                          SelectedItem="{x:Bind ViewModel.SelectedMailService,Mode=TwoWay}">
                     <ListView.ItemTemplate>
                         <DataTemplate x:DataType="services:IMailService">
                             <StackPanel Orientation="Horizontal" 
-                                        Margin="8"
+                                        Margin="0 8"
                                         Spacing="8">
-                                <PersonPicture Width="32"/>
+                                <PersonPicture Width="32">
+                                    <i:Interaction.Behaviors>
+                                        <mybehaviors:EmailAvatarBehavior EmailAddress="{x:Bind Address}"/>
+                                    </i:Interaction.Behaviors>
+                                </PersonPicture>
                                 <StackPanel>
                                     <TextBlock Text="{x:Bind Name}"/>
                                     <TextBlock Text="{x:Bind Address}"/>
@@ -30,14 +37,6 @@
                     </ListView.ItemTemplate>
                 </ListView>
             </NavigationView.PaneCustomContent>
-            <NavigationView.MenuItems>
-                <NavigationViewItem Content="QWQ"/>
-                <NavigationViewItem Content="QWQ"/>
-                <NavigationViewItem Content="QWQ"/>
-                <NavigationViewItemSeparator>
-
-                </NavigationViewItemSeparator>
-            </NavigationView.MenuItems>
         </NavigationView>
     </Grid>
 </Page>

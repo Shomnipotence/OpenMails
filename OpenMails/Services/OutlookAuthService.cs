@@ -7,6 +7,8 @@ using System.Threading.Tasks;
 using OpenMails;
 using Microsoft.Identity.Client;
 
+#nullable enable
+
 namespace OpenMails.Services
 {
     public class OutlookAuthService : IMailAuthService
@@ -39,7 +41,7 @@ namespace OpenMails.Services
                 var authResult = await _outlookLoginClient.AcquireTokenSilent(s_outlookLoginScopes, firstAccount)
                     .ExecuteAsync(cancellationToken);
 
-                currentMailService = new OutlookMailService(authResult.AccessToken);
+                currentMailService = new OutlookMailService(authResult.Account, authResult.AccessToken);
             }
             catch { }
 
@@ -75,7 +77,7 @@ namespace OpenMails.Services
                     .WithPrompt(Microsoft.Identity.Client.Prompt.SelectAccount)
                     .ExecuteAsync();
 
-                return new OutlookMailService(authResult.AccessToken);
+                return new OutlookMailService(authResult.Account, authResult.AccessToken);
             }
             catch (Exception ex)
             {
