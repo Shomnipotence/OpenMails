@@ -9,16 +9,17 @@
     xmlns:vm="using:OpenMails.ViewModels"
     xmlns:services="using:OpenMails.Services"
     mc:Ignorable="d"
-    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
-    d:DataContext="{d:DesignInstance Type=v:MainPage}">
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
     <Grid>
         <NavigationView>
             <NavigationView.PaneCustomContent>
                 <ListView ItemsSource="{x:Bind ViewModel.MailServices}">
                     <ListView.ItemTemplate>
-                        <DataTemplate x:DataType="services:MailServiceBase">
-                            
+                        <DataTemplate>
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <PersonPicture/>
+                            </StackPanel>
                         </DataTemplate>
                     </ListView.ItemTemplate>
                 </ListView>

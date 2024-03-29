@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
+using OpenMails.Services;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
 using Windows.UI.Xaml;
@@ -22,9 +23,18 @@ namespace OpenMails.Views
     /// </summary>
     public sealed partial class LoginPage : Page
     {
-        public LoginPage()
+        private readonly NavigationService _navigationService;
+
+        public LoginPage(
+            NavigationService navigationService)
         {
             this.InitializeComponent();
+            _navigationService = navigationService;
+        }
+
+        public void OnLoginCompleted()
+        {
+            _navigationService.NavigateToMainPage();
         }
     }
 }

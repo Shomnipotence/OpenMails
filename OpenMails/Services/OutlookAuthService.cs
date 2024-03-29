@@ -1,5 +1,10 @@
-﻿using System.Reflection;
+﻿using System;
+using System.Collections.Generic;
+using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Threading;
+using System.Threading.Tasks;
+using OpenMails;
 using Microsoft.Identity.Client;
 
 namespace OpenMails.Services
@@ -22,6 +27,11 @@ namespace OpenMails.Services
             [EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
             IMailService? currentMailService = null;
+
+#if DEBUG
+            // TODO: Implement get logined outlook services
+            yield break;
+#endif
 
             try
             {

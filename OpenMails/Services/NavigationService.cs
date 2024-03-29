@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
+using OpenMails.Views;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 
@@ -10,9 +12,11 @@ namespace OpenMails.Services
 {
     public class NavigationService
     {
+        readonly IServiceProvider _serviceProvider;
         Frame _rootFrame;
 
-        public NavigationService()
+        public NavigationService(
+            IServiceProvider serviceProvider)
         {
             Frame rootFrame = Window.Current.Content as Frame;
 
@@ -25,6 +29,7 @@ namespace OpenMails.Services
             }
 
             _rootFrame = rootFrame;
+            _serviceProvider = serviceProvider;
         }
 
         /// <summary>
@@ -37,14 +42,20 @@ namespace OpenMails.Services
             throw new Exception("Failed to load Page " + e.SourcePageType.FullName);
         }
 
+        private void NavigateToSingletonPage<TPage>()
+        {
+            _rootFrame.Content = _serviceProvider
+                .GetRequiredService<TPage>();
+        }
+
         public void NavigateToLoginPage()
         {
-
+            NavigateToSingletonPage<LoginPage>();
         }
 
         public void NavigateToMainPage()
         {
-
+            NavigateToSingletonPage<MainPage>();
         }
     }
 }

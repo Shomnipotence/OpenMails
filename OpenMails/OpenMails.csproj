@@ -122,8 +122,18 @@
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Models\MailAuthServiceWrapper.cs" />
+    <Compile Include="Models\MailFolder.cs" />
+    <Compile Include="Models\MailMessage.cs" />
+    <Compile Include="Models\MailMessageContent.cs" />
+    <Compile Include="Models\Recipient.cs" />
     <Compile Include="Services\ApplicationService.cs" />
+    <Compile Include="Services\IMailAuthService.cs" />
+    <Compile Include="Services\IMailService.cs" />
+    <Compile Include="Services\MailServiceBase.cs" />
     <Compile Include="Services\NavigationService.cs" />
+    <Compile Include="Services\OutlookAuthService.cs" />
+    <Compile Include="Services\OutlookMailService.cs" />
     <Compile Include="ViewModels\LoginPageViewModel.cs" />
     <Compile Include="ViewModels\MainPageViewModel.cs" />
     <Compile Include="Views\LoginPage.xaml.cs">
@@ -141,6 +151,8 @@
     </AppxManifest>
   </ItemGroup>
   <ItemGroup>
+    <None Include="AppSecrets.ini" />
+    <None Include="AppSecrets.Template.ini" />
     <None Include="Package.StoreAssociation.xml" />
     <Content Include="Properties\Default.rd.xml" />
     <Content Include="Assets\LockScreenLogo.scale-200.png" />
@@ -196,15 +208,7 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\OpenMails.Common\OpenMails.Common.csproj">
-      <Project>{34176308-582a-4463-bcdd-c535f58962f1}</Project>
-      <Name>OpenMails.Common</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\OpenMails.Outlook\OpenMails.Outlook.csproj">
-      <Project>{4da7ec10-fa2f-4fb6-9789-96d6204d289c}</Project>
-      <Name>OpenMails.Outlook</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\OpenMails.Secrets\OpenMails.Secrets.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" PrivateAssets="all">
+    <ProjectReference Include="..\OpenMails.Secrets\OpenMails.Secrets.csproj">
       <Project>{4629c2d2-ed51-4d01-b76c-46893a8a0994}</Project>
       <Name>OpenMails.Secrets</Name>
     </ProjectReference>

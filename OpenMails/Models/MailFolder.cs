@@ -1,15 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace OpenMails.Models
 {
     public class MailFolder
     {
         public MailFolder(
-            string id, 
-            string name, 
+            string id,
+            string name,
             string description)
         {
             Id = id;

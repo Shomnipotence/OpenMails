@@ -9,6 +9,7 @@ using Microsoft.Graph.Models;
 using Microsoft.Identity.Client;
 using Microsoft.Kiota.Abstractions;
 using Microsoft.Kiota.Abstractions.Authentication;
+using OpenMails;
 using OpenMails.Models;
 
 #nullable enable
