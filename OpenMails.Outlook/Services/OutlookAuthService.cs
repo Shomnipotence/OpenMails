@@ -1,35 +1,40 @@
 ﻿using System.Reflection;
+using System.Runtime.CompilerServices;
 using Microsoft.Identity.Client;
 
 namespace OpenMails.Services
 {
-    public class OutlookAuthService
+    public class OutlookAuthService : IMailAuthService
     {
         static readonly string s_outlookLoginInstance = "https://login.microsoftonline.com/";
         static readonly string[] s_outlookLoginScopes = new string[] { "Mail.ReadWrite", "offline_access" };
 
         IPublicClientApplication _outlookLoginClient;
 
+        public string Name => "Outlook";
+
         /// <summary>
         /// 获取已登录的 Outlook 邮件服务
         /// </summary>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async Task<IMailService?> GetLoginedServiceAsync(
-            CancellationToken cancellationToken = default)
+        public async IAsyncEnumerable<IMailService> GetLoginedServicesAsync(
+            [EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
+            IMailService? currentMailService = null;
+
             try
             {
                 IAccount firstAccount = Microsoft.Identity.Client.PublicClientApplication.OperatingSystemAccount;
                 var authResult = await _outlookLoginClient.AcquireTokenSilent(s_outlookLoginScopes, firstAccount)
                     .ExecuteAsync(cancellationToken);
 
-                return new OutlookMailService(authResult.AccessToken);
+                currentMailService = new OutlookMailService(authResult.AccessToken);
             }
-            catch
-            {
-                return null;
-            }
+            catch { }
+
+            if (currentMailService is not null)
+                yield return currentMailService;
         }
 
 

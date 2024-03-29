@@ -37,9 +37,11 @@ namespace OpenMails.Services
             _graphServiceClient = new GraphServiceClient(authProvider);
         }
 
-        public string Name => "Outlook";
+        public string ServiceName => "Outlook";
 
-        public string Address => throw new NotImplementedException();
+        public string Name => "Test";
+        public string Address => "test@outlook.com";
+
 
         public async IAsyncEnumerable<Models.MailFolder> GetAllFoldersAsync(
             [EnumeratorCancellation] CancellationToken cancellationToken = default)

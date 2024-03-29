@@ -7,6 +7,8 @@ namespace OpenMails.Services
 {
     public interface IMailService
     {
+        public string ServiceName { get; }
+
         public string Name { get; }
         public string Address { get; }
 
