@@ -43,6 +43,7 @@ namespace OpenMails.Services
         }
 
         private void NavigateToSingletonPage<TPage>()
+            where TPage : UIElement
         {
             _rootFrame.Content = _serviceProvider
                 .GetRequiredService<TPage>();

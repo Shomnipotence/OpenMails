@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
 using OpenMails.Services;
+using OpenMails.ViewModels;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
 using Windows.UI.Xaml;
@@ -26,11 +27,19 @@ namespace OpenMails.Views
         private readonly NavigationService _navigationService;
 
         public LoginPage(
+            LoginPageViewModel viewModel,
             NavigationService navigationService)
         {
-            this.InitializeComponent();
             _navigationService = navigationService;
+
+            DataContext = this;
+            ViewModel = viewModel;
+
+            this.InitializeComponent();
+
         }
+
+        public LoginPageViewModel ViewModel { get; }
 
         public void OnLoginCompleted()
         {

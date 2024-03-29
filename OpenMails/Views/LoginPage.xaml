@@ -5,13 +5,47 @@
     xmlns:local="using:OpenMails.Views"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:tkui="using:CommunityToolkit.WinUI.Controls"
+    xmlns:ui="using:Microsoft.UI.Xaml.Controls"
+    xmlns:v="using:OpenMails.Views"
+    xmlns:m="using:OpenMails.Models"
+    xmlns:vm="using:OpenMails.ViewModels"
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
     <Grid>
-        <StackPanel Margin="48 96">
-            <Rectangle Width="300" Height="150" Fill="#66666666"/>
-            
+        <StackPanel VerticalAlignment="Center"
+                    HorizontalAlignment="Center"
+                    MinHeight="600">
+            <Border Width="300" Height="150" 
+                    CornerRadius="5"
+                    Background="pink"/>
+
+            <ItemsControl Margin="0 96"
+                          Width="800"
+                          ItemsSource="{x:Bind ViewModel.AllMailAuthServices}"
+                          d:ItemsSource="{d:SampleData ItemCount=5}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <StackPanel Spacing="18"/>
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate x:DataType="m:MailAuthServiceWrapper">
+                        <tkui:SettingsCard Header="{x:Bind Name}"
+                                           IsClickEnabled="True"
+                                           Command="{x:Bind LoginCommand}"/>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+            <ListView Margin="0 48"
+                      >
+                <ListView.ItemTemplate>
+                    <DataTemplate x:DataType="m:MailAuthServiceWrapper">
+                        <TextBlock Text="{x:Bind Name}"/>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
         </StackPanel>
     </Grid>
 </Page>

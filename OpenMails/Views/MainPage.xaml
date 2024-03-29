@@ -16,9 +16,15 @@
             <NavigationView.PaneCustomContent>
                 <ListView ItemsSource="{x:Bind ViewModel.MailServices}">
                     <ListView.ItemTemplate>
-                        <DataTemplate>
-                            <StackPanel Orientation="Horizontal" Spacing="8">
-                                <PersonPicture/>
+                        <DataTemplate x:DataType="services:IMailService">
+                            <StackPanel Orientation="Horizontal" 
+                                        Margin="8"
+                                        Spacing="8">
+                                <PersonPicture Width="32"/>
+                                <StackPanel>
+                                    <TextBlock Text="{x:Bind Name}"/>
+                                    <TextBlock Text="{x:Bind Address}"/>
+                                </StackPanel>
                             </StackPanel>
                         </DataTemplate>
                     </ListView.ItemTemplate>

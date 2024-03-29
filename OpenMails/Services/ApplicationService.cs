@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Windows.UI.Xaml;
 
 namespace OpenMails.Services
 {
@@ -31,15 +32,11 @@ namespace OpenMails.Services
                 allLoginedServices.Add(mailService);
 
             if (allLoginedServices.Count == 0)
-            {
                 _navigationService.NavigateToLoginPage();
-            }
             else
-            {
-
-
                 _navigationService.NavigateToMainPage();
-            }
+
+            Window.Current.Activate();
         }
 
         public Task StopAsync(CancellationToken cancellationToken)
