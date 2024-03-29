@@ -10,6 +10,7 @@ using Microsoft.Identity.Client;
 using Microsoft.Kiota.Abstractions;
 using Microsoft.Kiota.Abstractions.Authentication;
 using OpenMails;
+using OpenMails.Extensions;
 using OpenMails.Models;
 using Windows.UI.Xaml.Media;
 
@@ -60,7 +61,7 @@ namespace OpenMails.Services
             var response = await _graphServiceClient.Me.MailFolders.GetAsync(parameters => { }, cancellationToken);
 
             foreach (var folder in response.Value)
-                yield return new OpenMails.Models.MailFolder(folder.Id, folder.DisplayName, folder.DisplayName);
+                yield return new OpenMails.Models.MailFolder(folder.Id, folder.DisplayName, folder.DisplayName, folder.ParentFolderId);
         }
 
         public async IAsyncEnumerable<MailMessage> GetAllMessagesAsync(
@@ -69,21 +70,33 @@ namespace OpenMails.Services
             var response = await _graphServiceClient.Me.Messages.GetAsync(parameter => { }, cancellationToken);
 
             foreach (var message in response.Value)
-                yield return new MailMessage(
-                    new Models.Recipient(message.Sender.EmailAddress.Address, message.Sender.EmailAddress.Name),
-                    message.ToRecipients.Select(recipient => new Models.Recipient(recipient.EmailAddress.Address, recipient.EmailAddress.Name)),
-                    message.CcRecipients.Select(recipient => new Models.Recipient(recipient.EmailAddress.Address, recipient.EmailAddress.Name)),
-                    new MailMessageContent(message.Body.Content));
+                yield return message.ToCommonMailMessage();
         }
 
-        public IAsyncEnumerable<MailMessage> GetAllMessagesInFolder(Models.MailFolder folder, CancellationToken cancellationToken = default)
+        public async IAsyncEnumerable<MailMessage> GetAllMessagesInFolder(
+            Models.MailFolder folder, 
+            [EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
-            
+            var response = await _graphServiceClient.Me.MailFolders[folder.Id].Messages.GetAsync(parameters => { }, cancellationToken);
+
+            foreach (var message in response.Value)
+                yield return message.ToCommonMailMessage();
         }
 
-        public IAsyncEnumerable<MailMessage> GetMessagesInFolder(Models.MailFolder folder, int skip, int take, CancellationToken cancellationToken = default)
+        public async IAsyncEnumerable<MailMessage> GetMessagesInFolder(
+            Models.MailFolder folder, 
+            int skip, 
+            int take, 
+            [EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
-            
+            var response = await _graphServiceClient.Me.MailFolders[folder.Id].Messages.GetAsync(parameters =>
+            {
+                parameters.QueryParameters.Skip = skip;
+                parameters.QueryParameters.Top = take;
+            }, cancellationToken);
+
+            foreach (var message in response.Value)
+                yield return message.ToCommonMailMessage();
         }
 
         public class OutlookMailServiceAuthenticationProvider : IAuthenticationProvider

@@ -5,6 +5,9 @@ using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Text;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Toolkit.Uwp.UI.Controls;
+using Microsoft.UI.Xaml.Controls;
+using OpenMails.Models;
 using OpenMails.Services;
 using OpenMails.ViewModels;
 using Windows.Foundation;
@@ -26,6 +29,8 @@ namespace OpenMails.Views
     /// </summary>
     public sealed partial class MainPage : Page
     {
+        WebView2 _webView2;
+
         public MainPage(
             MainPageViewModel viewModel)
         {
@@ -36,5 +41,41 @@ namespace OpenMails.Views
         }
 
         public MainPageViewModel ViewModel { get; }
+
+        private void WebView2_Loaded(object sender, RoutedEventArgs e)
+        {
+            if (sender is not WebView2 webview2)
+                return;
+
+            // webview2 initialization
+
+            // set webview2 background as transparent
+            Environment.SetEnvironmentVariable("WEBVIEW2_DEFAULT_BACKGROUND_COLOR", "00FFFFFF");
+
+            // create core webview2
+            _ = webview2.EnsureCoreWebView2Async();
+
+            // save webveiw2 instance
+            _webView2 = webview2;
+        }
+
+        private void WebView2_CoreWebView2Initialized(Microsoft.UI.Xaml.Controls.WebView2 sender, Microsoft.UI.Xaml.Controls.CoreWebView2InitializedEventArgs args)
+        {
+            if (sender.Tag is not MailMessage mailMessage)
+                return;
+
+            sender.CoreWebView2.NavigateToString(mailMessage.Content.Text);
+        }
+
+        private void MailMessageListDetailsView_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (_webView2 is null || _webView2.CoreWebView2 is null)
+                return;
+            if (sender is not ListDetailsView listDetailsView ||
+                listDetailsView.SelectedItem is not MailMessage selectedMessage)
+                return;
+
+            _webView2.CoreWebView2.NavigateToString(selectedMessage.Content.Text);
+        }
     }
 }

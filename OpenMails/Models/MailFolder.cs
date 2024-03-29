@@ -1,12 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Text;
 
 #nullable enable
 
 namespace OpenMails.Models
 {
-    public class MailFolder
+    public record class MailFolder
     {
         public MailFolder(
             string id,

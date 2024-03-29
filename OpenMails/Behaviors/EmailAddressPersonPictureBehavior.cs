@@ -107,8 +107,14 @@ namespace OpenMails.Behaviors
                 var response = await s_httpClient.GetAsync(uri, cancellationToken);
                 if (cancellationToken.IsCancellationRequested)
                     return;
+
                 if (!response.IsSuccessStatusCode)
+                {
+                    if (AssociatedObject is not null)
+                        AssociatedObject.ProfilePicture = null;
+
                     return;
+                }
 
                 var imageStream = await response.Content.ReadAsStreamAsync();
 

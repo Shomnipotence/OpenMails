@@ -1,4 +1,6 @@
-﻿namespace OpenMails.Models
+﻿#nullable enable
+
+namespace OpenMails.Models
 {
     public class Recipient
     {
