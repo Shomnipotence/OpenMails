@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
@@ -38,10 +39,18 @@ namespace OpenMails.Views
             ViewModel = viewModel;
 
             this.InitializeComponent();
+
+            if (ViewModel.SelectedMailService is null)
+                ViewModel.SelectedMailService = ViewModel.MailServices.FirstOrDefault();
         }
 
         public MainPageViewModel ViewModel { get; }
 
+        /// <summary>
+        /// WebView2 加载完毕时, 进行初始化操作
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void WebView2_Loaded(object sender, RoutedEventArgs e)
         {
             if (sender is not WebView2 webview2)
@@ -59,6 +68,11 @@ namespace OpenMails.Views
             _webView2 = webview2;
         }
 
+        /// <summary>
+        /// WebView2 CoreWebView2 初始化完毕时进行导航
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="args"></param>
         private void WebView2_CoreWebView2Initialized(Microsoft.UI.Xaml.Controls.WebView2 sender, Microsoft.UI.Xaml.Controls.CoreWebView2InitializedEventArgs args)
         {
             if (sender.Tag is not MailMessage mailMessage)
@@ -67,6 +81,11 @@ namespace OpenMails.Views
             sender.CoreWebView2.NavigateToString(mailMessage.Content.Text);
         }
 
+        /// <summary>
+        /// 当选择的邮件改变时, 使 WebView2 导航
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void MailMessageListDetailsView_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (_webView2 is null || _webView2.CoreWebView2 is null)
@@ -76,6 +95,19 @@ namespace OpenMails.Views
                 return;
 
             _webView2.CoreWebView2.NavigateToString(selectedMessage.Content.Text);
+        }
+
+        private async void WebView2_NavigationStarting(WebView2 sender, Microsoft.Web.WebView2.Core.CoreWebView2NavigationStartingEventArgs args)
+        {
+            if (Uri.TryCreate(args.Uri, UriKind.RelativeOrAbsolute, out var uri))
+            {
+                if (uri.Scheme.Equals("HTTP", StringComparison.OrdinalIgnoreCase) ||
+                    uri.Scheme.Equals("HTTPS", StringComparison.OrdinalIgnoreCase))
+                {
+                    args.Cancel = true;
+                    await global::Windows.System.Launcher.LaunchUriAsync(uri);
+                }
+            }
         }
     }
 }

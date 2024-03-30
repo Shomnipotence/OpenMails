@@ -29,8 +29,7 @@
             <!--当前已登录用户-->
             <ui:NavigationView.PaneCustomContent>
                 <ListView ItemsSource="{x:Bind ViewModel.MailServices,Mode=OneWay}"
-                          SelectedItem="{x:Bind ViewModel.SelectedMailService,Mode=TwoWay}"
-                          SelectedIndex="0">
+                          SelectedItem="{x:Bind ViewModel.SelectedMailService,Mode=TwoWay}">
                     <ListView.ItemTemplate>
                         <DataTemplate x:DataType="services:IMailService">
                             <StackPanel Orientation="Horizontal" 
@@ -38,7 +37,7 @@
                                         Spacing="8">
                                 <PersonPicture Width="32">
                                     <i:Interaction.Behaviors>
-                                        <mybehaviors:EmailAvatarBehavior EmailAddress="{x:Bind Address}"/>
+                                        <mybehaviors:EmailAddressPersonPictureBehavior EmailAddress="{x:Bind Address}"/>
                                     </i:Interaction.Behaviors>
                                 </PersonPicture>
                                 <StackPanel>
@@ -66,7 +65,7 @@
                 <!--消息列表头, Focus/Other 切换-->
                 <mstkui:ListDetailsView.ListHeaderTemplate>
                     <DataTemplate x:DataType="vm:MainPageViewModel">
-                        <Grid>
+                        <Grid Visibility="{x:Bind SelectedFolder,Mode=OneWay,Converter={StaticResource ValueNotNullConverter}}">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="Auto"/>
@@ -115,7 +114,7 @@
                             <PersonPicture Width="32" 
                                            DisplayName="{x:Bind Sender.DisplayName}">
                                 <i:Interaction.Behaviors>
-                                    <mybehaviors:EmailAvatarBehavior EmailAddress="{x:Bind Sender.EmailAddress}"/>
+                                    <mybehaviors:EmailAddressPersonPictureBehavior EmailAddress="{x:Bind Sender.EmailAddress}"/>
                                 </i:Interaction.Behaviors>
                             </PersonPicture>
                             <StackPanel>
@@ -228,7 +227,7 @@
                                         <PersonPicture Width="32"
                                                        DisplayName="{x:Bind Sender.DisplayName}">
                                             <i:Interaction.Behaviors>
-                                                <mybehaviors:EmailAvatarBehavior EmailAddress="{x:Bind Sender.EmailAddress}"/>
+                                                <mybehaviors:EmailAddressPersonPictureBehavior EmailAddress="{x:Bind Sender.EmailAddress}"/>
                                             </i:Interaction.Behaviors>
                                         </PersonPicture>
                                         <StackPanel>
@@ -244,7 +243,7 @@
                                              MinHeight="500"
                                              Loaded="WebView2_Loaded"
                                              CoreWebView2Initialized="WebView2_CoreWebView2Initialized"
-                                             Background="Transparent">
+                                             NavigationStarting="WebView2_NavigationStarting">
                                     <i:Interaction.Behaviors>
                                         <mybehaviors:WebView2AutoHeightBehavior DefaultHeight="500"
                                                                                 ExtraHeight="50"/>

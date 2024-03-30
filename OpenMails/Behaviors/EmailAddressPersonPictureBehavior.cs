@@ -14,7 +14,7 @@ using System.IO;
 
 namespace OpenMails.Behaviors
 {
-    public class EmailAvatarBehavior : Behavior<Windows.UI.Xaml.Controls.PersonPicture>
+    public class EmailAddressPersonPictureBehavior : Behavior<Windows.UI.Xaml.Controls.PersonPicture>
     {
         private static readonly SHA256 s_sha256 = SHA256.Create();
         private static readonly HttpClient s_httpClient = new();

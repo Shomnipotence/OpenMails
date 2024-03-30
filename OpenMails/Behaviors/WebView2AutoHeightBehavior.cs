@@ -48,6 +48,9 @@ namespace OpenMails.Behaviors
         /// <param name="args"></param>
         private void CoreWebView2_NavigationStarting(CoreWebView2 sender, CoreWebView2NavigationStartingEventArgs args)
         {
+            if (args.Cancel == true)
+                return;
+
             AssociatedObject.Height = DefaultHeight;
         }
 
