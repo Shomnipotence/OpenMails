@@ -9,19 +9,20 @@ using Windows.UI.Xaml.Data;
 
 namespace OpenMails.Converters
 {
+
     /// <summary>
     /// 集合转换为 Visibility <br/>
     /// 当集合不为空时, 返回 Visibility.Visible, 否则是 Visibility.Collapsed
     /// </summary>
-    public class CollectionToVisibilityConverter : IValueConverter 
+    public class CollectionToBooleanConverter : IValueConverter 
     {
         public object Convert(object value, Type targetType, object parameter, string language)
         {
             if (value is not ICollection collection ||
                 collection.Count == 0)
-                return Visibility.Collapsed;
+                return false;
 
-            return Visibility.Visible;
+            return true;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, string language)

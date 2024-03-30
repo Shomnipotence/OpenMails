@@ -50,7 +50,7 @@ namespace OpenMails.Services
         public IAsyncEnumerable<MailMessage> GetAllMessagesAsync(CancellationToken cancellationToken = default);
 
         /// <summary>
-        /// 获取所有根目录的文件夹
+        /// 获取所有根文件夹
         /// </summary>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>

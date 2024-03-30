@@ -5,17 +5,17 @@ using Windows.UI.Xaml.Data;
 namespace OpenMails.Converters
 {
     /// <summary>
-    /// 任意值转换为 Visibility <br/>
-    /// 当值不为空时返回 Visibility.Visible, 否则时 Collapsed
+    /// 任意值转换为 bool <br/>
+    /// 当值不为空时返回 true, 否则时 false
     /// </summary>
-    public class NotNullToVisibilityConverter : IValueConverter
+    public class ValueToBooleanConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, string language)
         {
             if (value is null)
-                return Visibility.Collapsed;
+                return false;
 
-            return Visibility.Visible;
+            return true;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, string language)

@@ -19,7 +19,7 @@ namespace OpenMails.Extensions
         /// <returns></returns>
         public static Models.MailFolder ToCommonMailFolder(this Microsoft.Graph.Models.MailFolder folder)
         {
-            return new OpenMails.Models.MailFolder(folder.Id, folder.DisplayName, folder.DisplayName, folder.ParentFolderId);
+            return new OpenMails.Models.MailFolder(folder.Id, folder.DisplayName, folder.DisplayName, folder.ParentFolderId, (folder.TotalItemCount ?? 0) == 0);
         }
 
         /// <summary>

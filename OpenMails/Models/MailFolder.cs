@@ -11,18 +11,21 @@ namespace OpenMails.Models
             string id,
             string name,
             string description,
-            string parentFolderId)
+            string parentFolderId,
+            bool isEmpty)
         {
             Id = id;
             Name = name;
             Description = description;
             ParentFolderId = parentFolderId;
+            IsEmpty = isEmpty;
         }
 
         public string Id { get; }
         public string Name { get; }
         public string Description { get; }
 
-        public string? ParentFolderId { get; }
+        public string ParentFolderId { get; }
+        public bool IsEmpty { get; }
     }
 }

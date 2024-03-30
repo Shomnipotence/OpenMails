@@ -7,7 +7,10 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using OpenMails.Services.Outlook;
+using Windows.UI.ViewManagement;
+using Windows.UI;
 using Windows.UI.Xaml;
+using Windows.ApplicationModel.Core;
 
 namespace OpenMails.Services
 {
@@ -29,6 +32,15 @@ namespace OpenMails.Services
 
         public async Task StartAsync(CancellationToken cancellationToken)
         {
+            // 标题栏透明
+            var titleBar = ApplicationView.GetForCurrentView().TitleBar;
+            titleBar.BackgroundColor = Colors.Transparent;
+            titleBar.ButtonBackgroundColor = Colors.Transparent;
+            titleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
+
+            var coreTitleBar = CoreApplication.GetCurrentView().TitleBar;
+            coreTitleBar.ExtendViewIntoTitleBar = true;
+
             // 初始化所有邮箱验证服务
             _authService.MailAuthServices.Add(new OutlookAuthService());
 

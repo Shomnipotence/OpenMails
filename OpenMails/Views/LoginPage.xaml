@@ -11,20 +11,27 @@
     xmlns:m="using:OpenMails.Models"
     xmlns:vm="using:OpenMails.ViewModels"
     mc:Ignorable="d"
-    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
+    ui:BackdropMaterial.ApplyToRootOrPageBackground="True">
 
     <Grid>
-        <StackPanel VerticalAlignment="Center"
-                    HorizontalAlignment="Center"
-                    MinHeight="600">
+        <v:CommonTitleBar VerticalAlignment="Top"/>
+        <StackPanel VerticalAlignment="Bottom"
+                    HorizontalAlignment="Stretch"
+                    Height="750"
+                    Margin="48">
             <!--邮箱 LOGO-->
             <Border Width="300" Height="150" 
                     CornerRadius="5"
-                    Background="pink"/>
+                    Background="pink">
+                <TextBlock VerticalAlignment="Center" 
+                           HorizontalAlignment="Center" 
+                           Text="这里放应用 LOGO"/>
+            </Border>
 
             <!--所有可用邮箱验证服务-->
             <ItemsControl Margin="0 96"
-                          Width="800"
+                          MaxWidth="800"
                           ItemsSource="{x:Bind ViewModel.AllMailAuthServices}">
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>

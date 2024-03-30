@@ -126,8 +126,11 @@
     <Compile Include="Behaviors\WebView2AutoHeightBehavior.cs" />
     <Compile Include="Behaviors\WebView2CoreWebViewBehavior.cs" />
     <Compile Include="Behaviors\WebView2RedirectScrollingBehavior.cs" />
-    <Compile Include="Converters\CollectionCountToVisibility.cs" />
-    <Compile Include="Converters\NotNullToVisibilityConverter.cs" />
+    <Compile Include="Converters\BooleanInvertConverter.cs" />
+    <Compile Include="Converters\BooleanToVisibilityConverter.cs" />
+    <Compile Include="Converters\CollectionToBooleanConverter.cs" />
+    <Compile Include="Converters\ValueToBooleanConverter.cs" />
+    <Compile Include="Converters\ValueConverterGroup.cs" />
     <Compile Include="Enums\GravatarFallback.cs" />
     <Compile Include="Extensions\OutlookExtensions.cs" />
     <Compile Include="Models\Wrappers\MailAuthServiceWrapper.cs" />
@@ -145,6 +148,9 @@
     <Compile Include="Services\Outlook\OutlookMailService.cs" />
     <Compile Include="ViewModels\LoginPageViewModel.cs" />
     <Compile Include="ViewModels\MainPageViewModel.cs" />
+    <Compile Include="Views\CommonTitleBar.xaml.cs">
+      <DependentUpon>CommonTitleBar.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\LoginPage.xaml.cs">
       <DependentUpon>LoginPage.xaml</DependentUpon>
     </Compile>
@@ -178,6 +184,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Page Include="Views\CommonTitleBar.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\LoginPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

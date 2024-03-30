@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using Microsoft.UI.Xaml.Controls;
 using OpenMails.Models;
 using OpenMails.Services;
@@ -34,8 +35,11 @@ namespace OpenMails.ViewModels
         [ObservableProperty]
         MailMessage? _selectedMessage;
 
-        public MailFolderWrapper? SelectedFolderWrapper => _selectedNavigationItem as MailFolderWrapper;
-        public MailFolder? SelectedFolder => (_selectedNavigationItem as MailFolderWrapper)?.MailFolder;
+        [ObservableProperty]
+        bool _isNavigationViewPaneOpen;
+
+        public MailFolderWrapper? SelectedFolderWrapper => SelectedNavigationItem as MailFolderWrapper;
+        public MailFolder? SelectedFolder => (SelectedNavigationItem as MailFolderWrapper)?.MailFolder;
 
         public ObservableCollection<IMailService> MailServices { get; } = new();
 
@@ -51,6 +55,8 @@ namespace OpenMails.ViewModels
             var loadingNavigationItems = new ObservableCollection<object>();
             if (_cachedServiceNavigationItems.TryGetValue(value, out var cachedNavigationItems))
                 NavigationViewItems = cachedNavigationItems;
+            else
+                NavigationViewItems = loadingNavigationItems;
 
             var mailFolders = value.GetAllFoldersAsync(default);
             await MailFolderWrapper.PopulateCollectionAsync(loadingNavigationItems, mailFolders);
@@ -94,6 +100,12 @@ namespace OpenMails.ViewModels
         partial void OnSelectedMessageChanged(MailMessage? value)
         {
 
+        }
+
+        [RelayCommand]
+        public void ToggleNavigationViewPane()
+        {
+            IsNavigationViewPaneOpen ^= true;
         }
     }
 }

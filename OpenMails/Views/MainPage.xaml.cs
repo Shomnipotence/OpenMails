@@ -42,6 +42,8 @@ namespace OpenMails.Views
 
             if (ViewModel.SelectedMailService is null)
                 ViewModel.SelectedMailService = ViewModel.MailServices.FirstOrDefault();
+
+            Window.Current.SetTitleBar(titleBarDragingArea);
         }
 
         public MainPageViewModel ViewModel { get; }

@@ -16,16 +16,84 @@
     xmlns:i="using:Microsoft.Xaml.Interactivity"
     xmlns:mybehaviors="using:OpenMails.Behaviors"
     mc:Ignorable="d"
-    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+    d:Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
+    ui:BackdropMaterial.ApplyToRootOrPageBackground="True">
 
     <Page.Resources>
-        <converters:CollectionToVisibilityConverter x:Key="CollectionNotEmptyConverter"/>
-        <converters:NotNullToVisibilityConverter x:Key="ValueNotNullConverter"/>
+        <converters:BooleanToVisibilityConverter x:Key="Boolean2VisibilityConverter"/>
+        
+        <converters:ValueConverterGroup x:Key="Collection2VisibilityConverter">
+            <converters:CollectionToBooleanConverter/>
+            <converters:BooleanToVisibilityConverter/>
+        </converters:ValueConverterGroup>
+
+        <converters:ValueConverterGroup x:Key="Value2VisibilityConverter">
+            <converters:ValueToBooleanConverter/>
+            <converters:BooleanToVisibilityConverter/>
+        </converters:ValueConverterGroup>
+
+        <converters:ValueConverterGroup x:Key="InvertBoolean2VisibilityConverter">
+            <converters:BooleanInvertConverter/>
+            <converters:BooleanToVisibilityConverter/>
+        </converters:ValueConverterGroup>
     </Page.Resources>
 
     <Grid>
-        <ui:NavigationView MenuItemsSource="{x:Bind ViewModel.NavigationViewItems,Mode=OneWay}"
-                           SelectedItem="{x:Bind ViewModel.SelectedNavigationItem,Mode=TwoWay}">
+        <!--应用标题栏-->
+        <Grid Name="titleBar" 
+              Height="48"
+              VerticalAlignment="Top">
+            
+            <!--拖拽区域-->
+            <StackPanel Name="titleBarDragingArea"
+                        Background="Transparent"
+                        Orientation="Horizontal"
+                        Spacing="4">
+                <!--导航按钮空出来空间-->
+                <Rectangle Width="48"/>
+
+                <!--标题-->
+                <TextBlock Grid.Column="0"
+                       Text="Electronic Mails"
+                       VerticalAlignment="Center"
+                       HorizontalAlignment="Left"/>
+            </StackPanel>
+            
+            <!--操作区域-->
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+
+                <Grid>
+                    <Button Style="{ThemeResource PaneToggleButtonStyle}"
+                            Command="{x:Bind ViewModel.ToggleNavigationViewPaneCommand}"
+                            VerticalAlignment="Center"
+                            HorizontalAlignment="Left"/>
+                </Grid>
+
+                <!--搜索框-->
+                <TextBox Grid.Column="1" 
+                     VerticalAlignment="Center"
+                     HorizontalAlignment="Stretch"/>
+
+                <Grid Grid.Column="2"/>
+            </Grid>
+        </Grid>
+
+        <!--页面主内容, 导航视图-->
+        <ui:NavigationView Margin="0 48 0 0" 
+                           MenuItemsSource="{x:Bind ViewModel.NavigationViewItems,Mode=OneWay}"
+                           SelectedItem="{x:Bind ViewModel.SelectedNavigationItem,Mode=TwoWay}"
+                           IsPaneOpen="{x:Bind ViewModel.IsNavigationViewPaneOpen,Mode=TwoWay}"
+                           PaneDisplayMode="Auto"
+                           IsTitleBarAutoPaddingEnabled="False"
+                           IsPaneToggleButtonVisible="False"
+                           IsBackButtonVisible="Collapsed"
+                           OpenPaneLength="250">
+
             <!--当前已登录用户-->
             <ui:NavigationView.PaneCustomContent>
                 <ListView ItemsSource="{x:Bind ViewModel.MailServices,Mode=OneWay}"
@@ -49,7 +117,7 @@
                     </ListView.ItemTemplate>
                 </ListView>
             </ui:NavigationView.PaneCustomContent>
-            
+
             <!--邮箱文件夹-->
             <ui:NavigationView.MenuItemTemplate>
                 <DataTemplate x:DataType="m:MailFolderWrapper">
@@ -57,16 +125,18 @@
                                            MenuItemsSource="{x:Bind SubFolders}"/>
                 </DataTemplate>
             </ui:NavigationView.MenuItemTemplate>
-            
+
             <!--邮件消息列表与消息查看-->
             <mstkui:ListDetailsView ItemsSource="{x:Bind ViewModel.CurrentFolderMailMessages,Mode=OneWay}"
                                     SelectedItem="{x:Bind ViewModel.SelectedMessage}"
                                     ListHeader="{x:Bind ViewModel}"
+                                    BackButtonBehavior="Manual"
+                                    Background="Transparent"
                                     SelectionChanged="MailMessageListDetailsView_SelectionChanged">
                 <!--消息列表头, Focus/Other 切换-->
                 <mstkui:ListDetailsView.ListHeaderTemplate>
                     <DataTemplate x:DataType="vm:MainPageViewModel">
-                        <Grid Visibility="{x:Bind SelectedNavigationItem,Mode=OneWay,Converter={StaticResource ValueNotNullConverter}}">
+                        <Grid Visibility="{x:Bind SelectedNavigationItem,Mode=OneWay,Converter={StaticResource Value2VisibilityConverter}}">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="Auto"/>
@@ -75,13 +145,13 @@
                                 <RowDefinition />
                                 <RowDefinition />
                             </Grid.RowDefinitions>
-                            
+
                             <!--当前邮箱文件夹名-->
                             <TextBlock Margin="0,10,0,0" Grid.ColumnSpan="2"
                                        Text="{x:Bind SelectedFolder.Name,Mode=OneWay}"
                                        FontSize="15"
                                        FontWeight="Bold"/>
-                            
+
                             <!--Focus/Other 切换-->
                             <ui:NavigationView x:Name="NavigationTab"
                                                Grid.Row="1"
@@ -93,7 +163,7 @@
                                     <ui:NavigationViewItem Content="Other" />
                                 </ui:NavigationView.MenuItems>
                             </ui:NavigationView>
-                            
+
                             <!--新建邮件-->
                             <Button Margin="5"
                                     Grid.Row="1"
@@ -102,13 +172,13 @@
                                     VerticalAlignment="Center"
                                     Style="{ThemeResource AlternateCloseButtonStyle}">
                                 <FontIcon FontSize="16"
-                                      Glyph="&#xe710;" />
+                                          Glyph="&#xe710;" />
                             </Button>
                         </Grid>
                     </DataTemplate>
                 </mstkui:ListDetailsView.ListHeaderTemplate>
-                
-                <!--邮件消息模板-->
+
+                <!--邮件消息列表元素模板-->
                 <mstkui:ListDetailsView.ItemTemplate>
                     <DataTemplate x:DataType="m:MailMessage">
                         <StackPanel Orientation="Horizontal" Spacing="12" Margin="0 8">
@@ -146,25 +216,28 @@
                         </StackPanel>
                     </DataTemplate>
                 </mstkui:ListDetailsView.ItemTemplate>
-                
+
                 <!--邮件显示-->
                 <mstkui:ListDetailsView.DetailsTemplate>
                     <DataTemplate x:DataType="m:MailMessage">
-                        <ScrollViewer Padding="48 48 48 0"
+                        <ScrollViewer Padding="48 26 48 0"
                                       x:Name="mailMessageScrollViewer">
                             <StackPanel>
-                                <!--邮件正文-->
-                                <TextBlock Text="{x:Bind Subject}"
+                                <Grid Margin="0 0 0 0">
+
+                                    <!--邮件标题-->
+                                    <TextBlock Text="{x:Bind Subject}"
                                            FontSize="20"
                                            FontWeight="Bold"/>
-                                
+                                </Grid>
+
                                 <!--邮件发送者, 接收者, 抄送-->
                                 <mstkui:WrapPanel Margin="0 24 0 0" 
                                                   HorizontalSpacing="24"
                                                   VerticalSpacing="24">
                                     <!--发件人-->
                                     <StackPanel Orientation="Horizontal" Spacing="8"
-                                                Visibility="{x:Bind Sender,Converter={StaticResource ValueNotNullConverter}}">
+                                                Visibility="{x:Bind Sender,Converter={StaticResource Value2VisibilityConverter}}">
                                         <TextBlock Text="From"
                                                    FontWeight="Bold"/>
                                         <StackPanel>
@@ -176,7 +249,7 @@
 
                                     <!--收件人-->
                                     <StackPanel Orientation="Horizontal" Spacing="8">
-                                        <TextBlock Text="From"
+                                        <TextBlock Text="To"
                                                    FontWeight="Bold"/>
                                         <ItemsControl ItemsSource="{x:Bind To}">
                                             <ItemsControl.ItemsPanel>
@@ -199,7 +272,7 @@
 
                                     <!--抄送-->
                                     <StackPanel Orientation="Horizontal" Spacing="8"
-                                                Visibility="{x:Bind Cc,Converter={StaticResource CollectionNotEmptyConverter}}">
+                                                Visibility="{x:Bind Cc,Converter={StaticResource Collection2VisibilityConverter}}">
                                         <TextBlock Text="CC"
                                                    FontWeight="Bold"/>
                                         <ItemsControl ItemsSource="{x:Bind To}">
@@ -255,6 +328,34 @@
                         </ScrollViewer>
                     </DataTemplate>
                 </mstkui:ListDetailsView.DetailsTemplate>
+
+                <mstkui:ListDetailsView.ListPaneEmptyContent>
+                    <StackPanel VerticalAlignment="Center"
+                                Visibility="{x:Bind ViewModel.SelectedFolder,Mode=OneWay,Converter={StaticResource Value2VisibilityConverter}}">
+                        
+                        <!--邮件数量不为空的时候, 显示正在加载-->
+                        <StackPanel Spacing="12"
+                                    Visibility="{x:Bind ViewModel.SelectedFolder.IsEmpty,Mode=OneWay,Converter={StaticResource InvertBoolean2VisibilityConverter}}">
+                            <ui:ProgressRing/>
+                            <TextBlock HorizontalAlignment="Center" Text="Loading..."/>
+                        </StackPanel>
+
+                        <!--邮件数量为空的时候, 显示无结果-->
+                        <StackPanel Spacing="12"
+                                    Visibility="{x:Bind ViewModel.SelectedFolder.IsEmpty,Mode=OneWay,Converter={StaticResource Boolean2VisibilityConverter}}">
+                            <Border Width="100" Height="50"
+                                    BorderBrush="Gray"
+                                    BorderThickness="1"
+                                    CornerRadius="5">
+                                <TextBlock VerticalAlignment="Center"
+                                           HorizontalAlignment="Center"
+                                           Text="空邮件的图标"/>
+                            </Border>
+                            <TextBlock HorizontalAlignment="Center" Text="Nothing here"/>
+                        </StackPanel>
+
+                    </StackPanel>
+                </mstkui:ListDetailsView.ListPaneEmptyContent>
             </mstkui:ListDetailsView>
         </ui:NavigationView>
     </Grid>
