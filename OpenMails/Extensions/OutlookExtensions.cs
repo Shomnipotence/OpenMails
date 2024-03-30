@@ -9,6 +9,11 @@ namespace OpenMails.Extensions
 {
     internal static class OutlookExtensions
     {
+        public static Models.MailFolder ToCommonMailFolder(this Microsoft.Graph.Models.MailFolder folder)
+        {
+            return new OpenMails.Models.MailFolder(folder.Id, folder.DisplayName, folder.DisplayName, folder.ParentFolderId);
+        }
+
         public static MailMessage ToCommonMailMessage(this Microsoft.Graph.Models.Message message)
         {
             return new MailMessage(

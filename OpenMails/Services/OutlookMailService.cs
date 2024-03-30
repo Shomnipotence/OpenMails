@@ -54,16 +54,76 @@ namespace OpenMails.Services
             }
         }
 
-
+        /// <summary>
+        /// 获取所有文件夹, 无论层级
+        /// </summary>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
         public async IAsyncEnumerable<Models.MailFolder> GetAllFoldersAsync(
             [EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
-            var response = await _graphServiceClient.Me.MailFolders.GetAsync(parameters => { }, cancellationToken);
+            await foreach (var rootFolder in GetAllRootFoldersAsync(cancellationToken))
+            {
+                yield return rootFolder;
 
-            foreach (var folder in response.Value)
-                yield return new OpenMails.Models.MailFolder(folder.Id, folder.DisplayName, folder.DisplayName, folder.ParentFolderId);
+                await foreach (var childFolder in RecursiveGetAllFoldersInFolder(rootFolder, cancellationToken))
+                    yield return childFolder;
+            }
         }
 
+        public async IAsyncEnumerable<Models.MailFolder> GetAllRootFoldersAsync(
+            [EnumeratorCancellation] CancellationToken cancellationToken = default)
+        {
+            var response = await _graphServiceClient.Me.MailFolders.GetAsync(parameters =>
+            {
+                parameters.QueryParameters.IncludeHiddenFolders = "true";
+            }, cancellationToken);
+
+            foreach (var folder in response.Value)
+                yield return folder.ToCommonMailFolder();
+
+            while (!string.IsNullOrEmpty(response.OdataNextLink))
+            {
+                response = await _graphServiceClient.Me.MailFolders
+                    .WithUrl(response.OdataNextLink)
+                    .GetAsync(cancellationToken: cancellationToken);
+
+                foreach (var folder in response.Value)
+                    yield return folder.ToCommonMailFolder();
+            }
+        }
+
+        /// <summary>
+        /// 获取文件夹的所有子文件夹
+        /// </summary>
+        /// <param name="folder"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        public async IAsyncEnumerable<Models.MailFolder> GetAllFoldersInFolderAsync(
+            Models.MailFolder folder,
+            [EnumeratorCancellation] CancellationToken cancellationToken = default)
+        {
+            var response = await _graphServiceClient.Me.MailFolders[folder.Id].ChildFolders.GetAsync(parameters => { }, cancellationToken);
+
+            foreach (var childFolder in response.Value)
+                yield return childFolder.ToCommonMailFolder();
+
+            while (!string.IsNullOrEmpty(response.OdataNextLink))
+            {
+                response = await _graphServiceClient.Me.MailFolders
+                    .WithUrl(response.OdataNextLink)
+                    .GetAsync(cancellationToken: cancellationToken);
+
+                foreach (var nextChildFolder in response.Value)
+                    yield return nextChildFolder.ToCommonMailFolder();
+            }
+        }
+
+        /// <summary>
+        /// 获取所有邮件
+        /// </summary>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
         public async IAsyncEnumerable<MailMessage> GetAllMessagesAsync(
             [EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
@@ -73,7 +133,13 @@ namespace OpenMails.Services
                 yield return message.ToCommonMailMessage();
         }
 
-        public async IAsyncEnumerable<MailMessage> GetAllMessagesInFolder(
+        /// <summary>
+        /// 获取文件夹中的所有邮件
+        /// </summary>
+        /// <param name="folder"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        public async IAsyncEnumerable<MailMessage> GetAllMessagesInFolderAsync(
             Models.MailFolder folder, 
             [EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
@@ -81,8 +147,45 @@ namespace OpenMails.Services
 
             foreach (var message in response.Value)
                 yield return message.ToCommonMailMessage();
+
+            while (!string.IsNullOrEmpty(response.OdataNextLink))
+            {
+                response = await _graphServiceClient.Me.Messages
+                    .WithUrl(response.OdataNextLink)
+                    .GetAsync(cancellationToken: cancellationToken);
+
+                foreach (var message in response.Value)
+                    yield return message.ToCommonMailMessage();
+            }
         }
 
+        /// <summary>
+        /// 递归式的获取某文件夹下所有层级的所有文件夹
+        /// </summary>
+        /// <param name="folder"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        public async IAsyncEnumerable<Models.MailFolder> RecursiveGetAllFoldersInFolder(
+            Models.MailFolder folder,
+            [EnumeratorCancellation] CancellationToken cancellationToken = default)
+        {
+            await foreach (var childFolder in GetAllFoldersInFolderAsync(folder, cancellationToken))
+            {
+                yield return childFolder;
+
+                await foreach (var childFolder2 in RecursiveGetAllFoldersInFolder(childFolder, cancellationToken))
+                    yield return childFolder2;
+            }
+        }
+
+        /// <summary>
+        /// 获取文件夹中的邮件, 根据指定查询
+        /// </summary>
+        /// <param name="folder"></param>
+        /// <param name="skip"></param>
+        /// <param name="take"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
         public async IAsyncEnumerable<MailMessage> GetMessagesInFolder(
             Models.MailFolder folder, 
             int skip, 

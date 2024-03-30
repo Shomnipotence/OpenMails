@@ -130,8 +130,9 @@
     <Compile Include="Converters\NotNullToVisibilityConverter.cs" />
     <Compile Include="Enums\GravatarFallback.cs" />
     <Compile Include="Extensions\OutlookExtensions.cs" />
-    <Compile Include="Models\MailAuthServiceWrapper.cs" />
+    <Compile Include="Models\Wrappers\MailAuthServiceWrapper.cs" />
     <Compile Include="Models\MailFolder.cs" />
+    <Compile Include="Models\Wrappers\MailFolderWrapper.cs" />
     <Compile Include="Models\MailMessage.cs" />
     <Compile Include="Models\MailFolderMessageCollection.cs" />
     <Compile Include="Models\MailMessageContent.cs" />
@@ -162,6 +163,7 @@
     <None Include="AppSecrets.ini" />
     <None Include="AppSecrets.Template.ini" />
     <None Include="Package.StoreAssociation.xml" />
+    <None Include="Models\Wrappers\readme.md" />
     <Content Include="Properties\Default.rd.xml" />
     <Content Include="Assets\LockScreenLogo.scale-200.png" />
     <Content Include="Assets\SplashScreen.scale-200.png" />

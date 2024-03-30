@@ -25,7 +25,7 @@
 
     <Grid>
         <ui:NavigationView MenuItemsSource="{x:Bind ViewModel.NavigationViewItems,Mode=OneWay}"
-                           SelectedItem="{x:Bind ViewModel.SelectedFolder,Mode=TwoWay}">
+                           SelectedItem="{x:Bind ViewModel.SelectedNavigationItem,Mode=TwoWay}">
             <!--当前已登录用户-->
             <ui:NavigationView.PaneCustomContent>
                 <ListView ItemsSource="{x:Bind ViewModel.MailServices,Mode=OneWay}"
@@ -52,8 +52,9 @@
             
             <!--邮箱文件夹-->
             <ui:NavigationView.MenuItemTemplate>
-                <DataTemplate x:DataType="m:MailFolder">
-                    <TextBlock Text="{x:Bind Name}"/>
+                <DataTemplate x:DataType="m:MailFolderWrapper">
+                    <ui:NavigationViewItem Content="{x:Bind MailFolder.Name}" 
+                                           MenuItemsSource="{x:Bind SubFolders}"/>
                 </DataTemplate>
             </ui:NavigationView.MenuItemTemplate>
             
@@ -65,7 +66,7 @@
                 <!--消息列表头, Focus/Other 切换-->
                 <mstkui:ListDetailsView.ListHeaderTemplate>
                     <DataTemplate x:DataType="vm:MainPageViewModel">
-                        <Grid Visibility="{x:Bind SelectedFolder,Mode=OneWay,Converter={StaticResource ValueNotNullConverter}}">
+                        <Grid Visibility="{x:Bind SelectedNavigationItem,Mode=OneWay,Converter={StaticResource ValueNotNullConverter}}">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="Auto"/>
