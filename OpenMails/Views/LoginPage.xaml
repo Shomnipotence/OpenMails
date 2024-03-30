@@ -16,18 +16,16 @@
 
     <Grid>
         <v:CommonTitleBar VerticalAlignment="Top"/>
+        <ScrollViewer>
+            
+        
         <StackPanel VerticalAlignment="Bottom"
                     HorizontalAlignment="Stretch"
                     Height="750"
                     Margin="48">
             <!--邮箱 LOGO-->
-            <Border Width="300" Height="150" 
-                    CornerRadius="5"
-                    Background="pink">
-                <TextBlock VerticalAlignment="Center" 
-                           HorizontalAlignment="Center" 
-                           Text="这里放应用 LOGO"/>
-            </Border>
+                <Image Width="256" Source="ms-appx:///Assets/Mail2.png" />
+                
 
             <!--所有可用邮箱验证服务-->
             <ItemsControl Margin="0 96"
@@ -54,6 +52,7 @@
                     </DataTemplate>
                 </ListView.ItemTemplate>
             </ListView>
-        </StackPanel>
+            </StackPanel>
+        </ScrollViewer>
     </Grid>
 </Page>
