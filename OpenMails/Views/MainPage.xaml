@@ -8,6 +8,7 @@
     xmlns:ui="using:Microsoft.UI.Xaml.Controls"
     xmlns:tkui="using:CommunityToolkit.WinUI.Controls"
     xmlns:mstkui="using:Microsoft.Toolkit.Uwp.UI.Controls"
+    xmlns:visuals="using:Microsoft.UI.Xaml.Controls.AnimatedVisuals"
     xmlns:v="using:OpenMails.Views"
     xmlns:m="using:OpenMails.Models"
     xmlns:vm="using:OpenMails.ViewModels"
@@ -75,9 +76,21 @@
                 </Grid>
 
                 <!--搜索框-->
-                <TextBox Grid.Column="1" 
-                     VerticalAlignment="Center"
-                     HorizontalAlignment="Stretch"/>
+                <AutoSuggestBox Grid.Column="1" 
+                                VerticalAlignment="Center"
+                                HorizontalAlignment="Stretch">
+                    <AutoSuggestBox.QueryIcon>
+                        <ui:AnimatedIcon Width="16"
+                                       Height="16">
+                            <ui:AnimatedIcon.Source>
+                                <visuals:AnimatedFindVisualSource />
+                            </ui:AnimatedIcon.Source>
+                            <ui:AnimatedIcon.FallbackIconSource>
+                                <ui:SymbolIconSource Symbol="Find" />
+                            </ui:AnimatedIcon.FallbackIconSource>
+                        </ui:AnimatedIcon>
+                    </AutoSuggestBox.QueryIcon>
+                </AutoSuggestBox>
 
                 <Grid Grid.Column="2"/>
             </Grid>
@@ -331,7 +344,8 @@
 
                 <mstkui:ListDetailsView.ListPaneEmptyContent>
                     <StackPanel VerticalAlignment="Center"
-                                Visibility="{x:Bind ViewModel.SelectedFolder,Mode=OneWay,Converter={StaticResource Value2VisibilityConverter}}">
+                                Visibility="{x:Bind ViewModel.SelectedFolder,Mode=OneWay,Converter={StaticResource Value2VisibilityConverter}}"
+                                Spacing="32">
                         
                         <!--邮件数量不为空的时候, 显示正在加载-->
                         <StackPanel Spacing="12"

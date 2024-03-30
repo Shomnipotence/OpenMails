@@ -46,43 +46,17 @@ namespace OpenMails.Models
         /// </summary>
         /// <param name="collection"></param>
         /// <param name="folders"></param>
-        public static void PopulateCollection(IList collection, IEnumerable<MailFolder> folders)
+        public static void PopulateCollection(IList collection, MailFolder folder)
         {
-            foreach (var folder in folders)
-            {
-                var folderWrapper = new MailFolderWrapper(folder);
+            var folderWrapper = new MailFolderWrapper(folder);
 
-                if (FindParentFolder(collection, folder, out var parentFolderWrapper))
-                {
-                    parentFolderWrapper.SubFolders.Add(folderWrapper);
-                }
-                else
-                {
-                    collection.Add(folderWrapper);
-                }
+            if (FindParentFolder(collection, folder, out var parentFolderWrapper))
+            {
+                parentFolderWrapper.SubFolders.Add(folderWrapper);
             }
-        }
-
-
-        /// <summary>
-        /// 根据指定的所有 MailFolder, 创建 MailFolderWrapper, 构建父子关系, 并填入 collection 中
-        /// </summary>
-        /// <param name="collection"></param>
-        /// <param name="folders"></param>
-        public static async Task PopulateCollectionAsync(IList collection, IAsyncEnumerable<MailFolder> folders)
-        {
-            await foreach (var folder in folders)
+            else
             {
-                var folderWrapper = new MailFolderWrapper(folder);
-
-                if (FindParentFolder(collection, folder, out var parentFolderWrapper))
-                {
-                    parentFolderWrapper.SubFolders.Add(folderWrapper);
-                }
-                else
-                {
-                    collection.Add(folderWrapper);
-                }
+                collection.Add(folderWrapper);
             }
         }
     }
