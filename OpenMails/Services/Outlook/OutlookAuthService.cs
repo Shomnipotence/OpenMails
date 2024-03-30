@@ -9,7 +9,7 @@ using Microsoft.Identity.Client;
 
 #nullable enable
 
-namespace OpenMails.Services
+namespace OpenMails.Services.Outlook
 {
     public class OutlookAuthService : IMailAuthService
     {

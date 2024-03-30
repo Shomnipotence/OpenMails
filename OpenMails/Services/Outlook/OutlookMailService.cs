@@ -9,14 +9,13 @@ using Microsoft.Graph.Models;
 using Microsoft.Identity.Client;
 using Microsoft.Kiota.Abstractions;
 using Microsoft.Kiota.Abstractions.Authentication;
-using OpenMails;
 using OpenMails.Extensions;
 using OpenMails.Models;
 using Windows.UI.Xaml.Media;
 
 #nullable enable
 
-namespace OpenMails.Services
+namespace OpenMails.Services.Outlook
 {
     public class OutlookMailService : IMailService
     {
@@ -38,7 +37,7 @@ namespace OpenMails.Services
 
             var authProvider = new OutlookMailServiceAuthenticationProvider(accessToken);
 
-            _account = account; 
+            _account = account;
             _graphServiceClient = new GraphServiceClient(authProvider);
         }
 
@@ -140,7 +139,7 @@ namespace OpenMails.Services
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
         public async IAsyncEnumerable<MailMessage> GetAllMessagesInFolderAsync(
-            Models.MailFolder folder, 
+            Models.MailFolder folder,
             [EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
             var response = await _graphServiceClient.Me.MailFolders[folder.Id].Messages.GetAsync(parameters => { }, cancellationToken);
@@ -187,9 +186,9 @@ namespace OpenMails.Services
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
         public async IAsyncEnumerable<MailMessage> GetMessagesInFolder(
-            Models.MailFolder folder, 
-            int skip, 
-            int take, 
+            Models.MailFolder folder,
+            int skip,
+            int take,
             [EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
             var response = await _graphServiceClient.Me.MailFolders[folder.Id].Messages.GetAsync(parameters =>

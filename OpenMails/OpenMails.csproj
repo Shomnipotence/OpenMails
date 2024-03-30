@@ -141,8 +141,8 @@
     <Compile Include="Services\IMailAuthService.cs" />
     <Compile Include="Services\IMailService.cs" />
     <Compile Include="Services\NavigationService.cs" />
-    <Compile Include="Services\OutlookAuthService.cs" />
-    <Compile Include="Services\OutlookMailService.cs" />
+    <Compile Include="Services\Outlook\OutlookAuthService.cs" />
+    <Compile Include="Services\Outlook\OutlookMailService.cs" />
     <Compile Include="ViewModels\LoginPageViewModel.cs" />
     <Compile Include="ViewModels\MainPageViewModel.cs" />
     <Compile Include="Views\LoginPage.xaml.cs">
@@ -160,8 +160,6 @@
     </AppxManifest>
   </ItemGroup>
   <ItemGroup>
-    <None Include="AppSecrets.ini" />
-    <None Include="AppSecrets.Template.ini" />
     <None Include="Behaviors\_readme.md" />
     <None Include="Package.StoreAssociation.xml" />
     <None Include="Models\Wrappers\_readme.md" />
