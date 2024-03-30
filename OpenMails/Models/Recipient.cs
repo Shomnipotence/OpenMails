@@ -2,6 +2,9 @@
 
 namespace OpenMails.Models
 {
+    /// <summary>
+    /// 发件人或收件人
+    /// </summary>
     public class Recipient
     {
         private static string GetDisplayNameFromEmailAddress(string address)

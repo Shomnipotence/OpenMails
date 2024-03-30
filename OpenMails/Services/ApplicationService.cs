@@ -10,6 +10,9 @@ using Windows.UI.Xaml;
 
 namespace OpenMails.Services
 {
+    /// <summary>
+    /// 负责程序声明周期的服务
+    /// </summary>
     internal class ApplicationService : IHostedService
     {
         private readonly NavigationService _navigationService;
@@ -25,17 +28,21 @@ namespace OpenMails.Services
 
         public async Task StartAsync(CancellationToken cancellationToken)
         {
+            // 初始化所有邮箱验证服务
             _authService.MailAuthServices.Add(new OutlookAuthService());
 
+            // 获取所有已经登陆的邮箱服务
             List<IMailService> allLoginedServices = new();
             await foreach (var mailService in _authService.GetAllLoginedServicesAsync(cancellationToken))
                 allLoginedServices.Add(mailService);
 
+            // 根据登陆状态导航到对应页面
             if (allLoginedServices.Count == 0)
                 _navigationService.NavigateToLoginPage();
             else
                 _navigationService.NavigateToMainPage();
 
+            // 激活窗口
             Window.Current.Activate();
         }
 

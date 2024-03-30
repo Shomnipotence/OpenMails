@@ -79,7 +79,7 @@ namespace OpenMails.Services
 
                 return new OutlookMailService(authResult.Account, authResult.AccessToken);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return null;
             }

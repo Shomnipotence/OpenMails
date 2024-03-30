@@ -9,6 +9,9 @@ using Windows.UI.Xaml.Data;
 
 namespace OpenMails.Models
 {
+    /// <summary>
+    /// 支持增量加载的邮箱邮件集合, 供 UI 绑定使用
+    /// </summary>
     public class MailFolderMessageCollection : ObservableCollection<MailMessage>, ISupportIncrementalLoading
     {
         bool _hasMoreItems = true;

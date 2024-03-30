@@ -141,7 +141,7 @@ namespace OpenMails.Behaviors
             {
                 // do nothing
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 // TODO: log something here
             }

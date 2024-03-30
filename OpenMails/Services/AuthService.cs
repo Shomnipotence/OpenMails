@@ -13,6 +13,10 @@ using Microsoft.Identity.Client.NativeInterop;
 
 namespace OpenMails.Services
 {
+    /// <summary>
+    /// 验证服务 <br/>
+    /// 可以理解为所有邮箱验证服务的容器
+    /// </summary>
     public class AuthService
     {
         public AuthService()

@@ -17,14 +17,15 @@
         <StackPanel VerticalAlignment="Center"
                     HorizontalAlignment="Center"
                     MinHeight="600">
+            <!--邮箱 LOGO-->
             <Border Width="300" Height="150" 
                     CornerRadius="5"
                     Background="pink"/>
 
+            <!--所有可用邮箱验证服务-->
             <ItemsControl Margin="0 96"
                           Width="800"
-                          ItemsSource="{x:Bind ViewModel.AllMailAuthServices}"
-                          d:ItemsSource="{d:SampleData ItemCount=5}">
+                          ItemsSource="{x:Bind ViewModel.AllMailAuthServices}">
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
                         <StackPanel Spacing="18"/>

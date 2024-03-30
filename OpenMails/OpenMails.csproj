@@ -162,8 +162,9 @@
   <ItemGroup>
     <None Include="AppSecrets.ini" />
     <None Include="AppSecrets.Template.ini" />
+    <None Include="Behaviors\_readme.md" />
     <None Include="Package.StoreAssociation.xml" />
-    <None Include="Models\Wrappers\readme.md" />
+    <None Include="Models\Wrappers\_readme.md" />
     <Content Include="Properties\Default.rd.xml" />
     <Content Include="Assets\LockScreenLogo.scale-200.png" />
     <Content Include="Assets\SplashScreen.scale-200.png" />

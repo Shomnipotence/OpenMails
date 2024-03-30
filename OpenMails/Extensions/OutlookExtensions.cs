@@ -7,13 +7,26 @@ using OpenMails.Models;
 
 namespace OpenMails.Extensions
 {
+    /// <summary>
+    /// Outlook 所使用的拓展函数
+    /// </summary>
     internal static class OutlookExtensions
     {
+        /// <summary>
+        /// 将 Outlook Graph 邮箱文件夹转换为当前项目抽象的文件夹
+        /// </summary>
+        /// <param name="folder"></param>
+        /// <returns></returns>
         public static Models.MailFolder ToCommonMailFolder(this Microsoft.Graph.Models.MailFolder folder)
         {
             return new OpenMails.Models.MailFolder(folder.Id, folder.DisplayName, folder.DisplayName, folder.ParentFolderId);
         }
 
+        /// <summary>
+        /// 将 Outlook Graph 邮箱邮件转换为当前项目抽象的邮件
+        /// </summary>
+        /// <param name="message"></param>
+        /// <returns></returns>
         public static MailMessage ToCommonMailMessage(this Microsoft.Graph.Models.Message message)
         {
             return new MailMessage(
