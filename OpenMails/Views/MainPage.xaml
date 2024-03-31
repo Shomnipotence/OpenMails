@@ -56,10 +56,10 @@
                 <Rectangle Width="48"/>
 
                 <!--标题-->
-                <TextBlock Grid.Column="0"
+                <!--<TextBlock Grid.Column="0"
                            Text="Electronic Mails"
                            VerticalAlignment="Center"
-                           HorizontalAlignment="Left"/>
+                           HorizontalAlignment="Left"/>-->
             </StackPanel>
 
             <!--操作区域-->
@@ -81,7 +81,8 @@
                 <!--搜索框-->
                 <AutoSuggestBox Grid.Column="1"
                                 VerticalAlignment="Center"
-                                HorizontalAlignment="Stretch">
+                                HorizontalAlignment="Stretch"
+                                PlaceholderText="Search">
                     <AutoSuggestBox.QueryIcon>
                         <ui:AnimatedIcon Width="16"
                                          Height="16">
@@ -126,7 +127,7 @@
                                     </i:Interaction.Behaviors>
                                 </PersonPicture>
                                 <StackPanel>
-                                    <TextBlock Text="{x:Bind Name}"/>
+                                    <TextBlock Text="{x:Bind Name}" FontWeight="Bold"/>
                                     <TextBlock Text="{x:Bind Address}"/>
                                 </StackPanel>
                             </StackPanel>
