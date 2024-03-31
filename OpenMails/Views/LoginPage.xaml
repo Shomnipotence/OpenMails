@@ -16,7 +16,7 @@
 
     <Grid>
         <v:CommonTitleBar VerticalAlignment="Top"/>
-        <ScrollViewer>
+       
             
         
         <StackPanel VerticalAlignment="Bottom"
@@ -53,6 +53,6 @@
                 </ListView.ItemTemplate>
             </ListView>
             </StackPanel>
-        </ScrollViewer>
+        
     </Grid>
 </Page>
