@@ -126,7 +126,7 @@
                                     </i:Interaction.Behaviors>
                                 </PersonPicture>
                                 <StackPanel>
-                                    <TextBlock Text="{x:Bind Name}"/>
+                                    <TextBlock Text="{x:Bind Name}" FontWeight="Bold"/>
                                     <TextBlock Text="{x:Bind Address}"/>
                                 </StackPanel>
                             </StackPanel>
