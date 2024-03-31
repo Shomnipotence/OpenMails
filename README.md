@@ -1,14 +1,33 @@
-# MailApp
+<p align="center">
+    <img src="https://user-images.githubusercontent.com/6630660/217154573-9489676a-b34b-4523-aba4-05cd9ed81f97.png" alter="Mail Icon" align="center"/>
+    <h1 align="center">Mail</h1>
+    <p align="center">一个支持多个邮箱服务的, 基于 UWP, Fluent Design 风格的邮箱客户端</p>
+</p>
 
-一个支持多个邮箱服务的, 基于 UWP, Fluent Design 风格的邮箱客户端
+## Download
+
+<a style="margin-left:24px" href="https://www.microsoft.com/store/productId/9NVMM1QDW3QB">
+    <picture>
+        <source media="(prefers-color-scheme: dark)" srcset="https://get.microsoft.com/images/en-us%20light.svg" />
+        <source media="(prefers-color-scheme: light)" srcset="https://get.microsoft.com/images/en-us%20dark.svg" />
+        <img style="vertical-align:middle" src="https://get.microsoft.com/images/en-us%20dark.svg" alt="Download DiskInfo" />
+    </picture>
+</a>
 
 <br/>
 
+## Objective
+
+We're striving to create a UWP Mail client for Windows.
+
+![image](https://github.com/MicaApps/Mail/assets/6630660/076a560a-0d83-4779-ad33-6c1fbfb5a390)
+
+
 ## 项目结构
 
-1. MailApp: 主项目
-2. MailApp.Secrets: 存放机密信息的项目
-3. MailApp.Secrets.SourceGenerator: 根据机密配置文件自动生成对应代码的源生成器
+1. OpenMails: 主项目
+2. OpenMails.Secrets: 存放机密信息的项目
+3. OpenMails.Secrets.SourceGenerator: 根据机密配置文件自动生成对应代码的源生成器
 
 <br/>
 
@@ -19,6 +38,7 @@
 2. 配置 AppSecrets: 打开 MailApp.Secrets 项目, 你会看到一个 "AppSecrets.Template.ini" 的文件,
    根据该文件内提示, 创建一个 "AppSecrets.ini", 并在里面配置好对应的信息.
 3. 直接开始构建 MailApp 项目.
+
 
 > 注意: 不要在任何带有 Template 字样的文件中填入机密信息, 因为它被包含在版本控制中了
 > AppSecrets.ini 不在版本控制中, 所以放心填写即可.
