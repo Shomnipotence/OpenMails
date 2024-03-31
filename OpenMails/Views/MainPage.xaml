@@ -22,7 +22,7 @@
 
     <Page.Resources>
         <converters:BooleanToVisibilityConverter x:Key="Boolean2VisibilityConverter"/>
-        
+
         <converters:ValueConverterGroup x:Key="Collection2VisibilityConverter">
             <converters:CollectionToBooleanConverter/>
             <converters:BooleanToVisibilityConverter/>
@@ -41,10 +41,10 @@
 
     <Grid>
         <!--应用标题栏-->
-        <Grid Name="titleBar" 
+        <Grid Name="titleBar"
               Height="48"
               VerticalAlignment="Top">
-            
+
             <!--拖拽区域-->
             <StackPanel Name="titleBarDragingArea"
                         Background="Transparent"
@@ -55,11 +55,11 @@
 
                 <!--标题-->
                 <TextBlock Grid.Column="0"
-                       Text="Electronic Mails"
-                       VerticalAlignment="Center"
-                       HorizontalAlignment="Left"/>
+                           Text="Electronic Mails"
+                           VerticalAlignment="Center"
+                           HorizontalAlignment="Left"/>
             </StackPanel>
-            
+
             <!--操作区域-->
             <Grid>
                 <Grid.ColumnDefinitions>
@@ -76,12 +76,12 @@
                 </Grid>
 
                 <!--搜索框-->
-                <AutoSuggestBox Grid.Column="1" 
+                <AutoSuggestBox Grid.Column="1"
                                 VerticalAlignment="Center"
                                 HorizontalAlignment="Stretch">
                     <AutoSuggestBox.QueryIcon>
                         <ui:AnimatedIcon Width="16"
-                                       Height="16">
+                                         Height="16">
                             <ui:AnimatedIcon.Source>
                                 <visuals:AnimatedFindVisualSource />
                             </ui:AnimatedIcon.Source>
@@ -97,7 +97,7 @@
         </Grid>
 
         <!--页面主内容, 导航视图-->
-        <ui:NavigationView Margin="0 48 0 0" 
+        <ui:NavigationView Margin="0 48 0 0"
                            MenuItemsSource="{x:Bind ViewModel.NavigationViewItems,Mode=OneWay}"
                            SelectedItem="{x:Bind ViewModel.SelectedNavigationItem,Mode=TwoWay}"
                            IsPaneOpen="{x:Bind ViewModel.IsNavigationViewPaneOpen,Mode=TwoWay}"
@@ -114,12 +114,12 @@
                           SelectedItem="{x:Bind ViewModel.SelectedMailService,Mode=TwoWay}">
                     <ListView.ItemTemplate>
                         <DataTemplate x:DataType="services:IMailService">
-                            <StackPanel Orientation="Horizontal" 
+                            <StackPanel Orientation="Horizontal"
                                         Margin="0 12"
                                         Spacing="8">
                                 <PersonPicture Width="32">
                                     <i:Interaction.Behaviors>
-                                        <mybehaviors:EmailAddressPersonPictureBehavior EmailAddress="{x:Bind Address}"/>
+                                        <mybehaviors:MailServicePersonPictrueBehavior MailService="{x:Bind}"/>
                                     </i:Interaction.Behaviors>
                                 </PersonPicture>
                                 <StackPanel>
@@ -135,7 +135,7 @@
             <!--邮箱文件夹-->
             <ui:NavigationView.MenuItemTemplate>
                 <DataTemplate x:DataType="m:MailFolderWrapper">
-                    <ui:NavigationViewItem Content="{x:Bind MailFolder.Name}" 
+                    <ui:NavigationViewItem Content="{x:Bind MailFolder.Name}"
                                            MenuItemsSource="{x:Bind SubFolders}"/>
                 </DataTemplate>
             </ui:NavigationView.MenuItemTemplate>
@@ -196,7 +196,7 @@
                 <mstkui:ListDetailsView.ItemTemplate>
                     <DataTemplate x:DataType="m:MailMessage">
                         <StackPanel Orientation="Horizontal" Spacing="12" Margin="0 8">
-                            <PersonPicture Width="32" 
+                            <PersonPicture Width="32"
                                            DisplayName="{x:Bind Sender.DisplayName}">
                                 <i:Interaction.Behaviors>
                                     <mybehaviors:EmailAddressPersonPictureBehavior EmailAddress="{x:Bind Sender.EmailAddress}"/>
@@ -213,11 +213,11 @@
                                         <ColumnDefinition Width="4"/>
                                         <ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
-                                    <TextBlock Grid.Column="0" 
+                                    <TextBlock Grid.Column="0"
                                                Text="{x:Bind Subject}"
                                                TextWrapping="NoWrap"
                                                TextTrimming="CharacterEllipsis"/>
-                                    <TextBlock Grid.Column="2" 
+                                    <TextBlock Grid.Column="2"
                                                Text="Time here"
                                                TextWrapping="NoWrap"
                                                TextTrimming="CharacterEllipsis"/>
@@ -241,12 +241,12 @@
 
                                     <!--邮件标题-->
                                     <TextBlock Text="{x:Bind Subject}"
-                                           FontSize="20"
-                                           FontWeight="Bold"/>
+                                               FontSize="20"
+                                               FontWeight="Bold"/>
                                 </Grid>
 
                                 <!--邮件发送者, 接收者, 抄送-->
-                                <mstkui:WrapPanel Margin="0 24 0 0" 
+                                <mstkui:WrapPanel Margin="0 24 0 0"
                                                   HorizontalSpacing="24"
                                                   VerticalSpacing="24">
                                     <!--发件人-->
@@ -326,7 +326,7 @@
                                     </StackPanel>
                                 </Grid>
 
-                                <ui:WebView2 Tag="{x:Bind Mode=OneWay}" 
+                                <ui:WebView2 Tag="{x:Bind Mode=OneWay}"
                                              Margin="0 8 0 0"
                                              MinHeight="500"
                                              Loaded="WebView2_Loaded"
@@ -347,7 +347,7 @@
                     <StackPanel VerticalAlignment="Center"
                                 Visibility="{x:Bind ViewModel.SelectedFolder,Mode=OneWay,Converter={StaticResource Value2VisibilityConverter}}"
                                 Spacing="32">
-                        
+
                         <!--邮件数量不为空的时候, 显示正在加载-->
                         <StackPanel Spacing="12"
                                     Visibility="{x:Bind ViewModel.SelectedFolder.IsEmpty,Mode=OneWay,Converter={StaticResource InvertBoolean2VisibilityConverter}}">
