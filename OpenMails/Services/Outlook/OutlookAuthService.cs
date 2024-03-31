@@ -6,6 +6,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using OpenMails;
 using Microsoft.Identity.Client;
+using Windows.Storage;
+using Microsoft.Identity.Client.Extensions.Msal;
 
 #nullable enable
 
@@ -13,10 +15,11 @@ namespace OpenMails.Services.Outlook
 {
     public class OutlookAuthService : IMailAuthService
     {
+        static readonly string s_cacheFileName = "AuthCache";
         static readonly string s_outlookLoginInstance = "https://login.microsoftonline.com/";
         static readonly string[] s_outlookLoginScopes = new string[] { "Mail.ReadWrite", "offline_access" };
 
-        IPublicClientApplication _outlookLoginClient;
+        IPublicClientApplication _identityClient;
 
         public string Name => "Outlook";
 
@@ -28,38 +31,39 @@ namespace OpenMails.Services.Outlook
         public async IAsyncEnumerable<IMailService> GetLoginedServicesAsync(
             [EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
-            IMailService? currentMailService = null;
+            var accounts = await _identityClient.GetAccountsAsync().ConfigureAwait(false);
 
-#if DEBUG
-            // TODO: Implement get logined outlook services
-            yield break;
-#endif
-
-            try
+            foreach (var account in accounts)
             {
-                IAccount firstAccount = Microsoft.Identity.Client.PublicClientApplication.OperatingSystemAccount;
-                var authResult = await _outlookLoginClient.AcquireTokenSilent(s_outlookLoginScopes, firstAccount)
+                IMailService? currentMailService = null;
+
+                try
+                {
+                    var authResult = await _identityClient.AcquireTokenSilent(s_outlookLoginScopes, account)
                     .ExecuteAsync(cancellationToken);
 
-                currentMailService = new OutlookMailService(authResult.Account, authResult.AccessToken);
-            }
-            catch { }
+                    currentMailService = new OutlookMailService(authResult.Account, authResult.AccessToken);
+                }
+                catch { }
 
-            if (currentMailService is not null)
-                yield return currentMailService;
+                if (currentMailService is not null)
+                    yield return currentMailService;
+            }
         }
 
 
         public OutlookAuthService()
         {
-            _outlookLoginClient = PublicClientApplicationBuilder.Create(AppSecrets.MicrosoftGraphClientId)
+            _identityClient = PublicClientApplicationBuilder.Create(AppSecrets.MicrosoftGraphClientId)
                 .WithClientName("OpenMails")
                 .WithClientVersion(Assembly.GetExecutingAssembly().GetName().Version.ToString())
                 .WithAuthority($"{s_outlookLoginInstance}{AppSecrets.MicrosoftGraphTenantId}")
+                .WithUseCorporateNetwork(false)
                 .WithDefaultRedirectUri()
                 .WithBroker(true)
                 .Build();
         }
+
 
         /// <summary>
         /// 登陆 Outlook 并取得其邮件服务
@@ -73,7 +77,7 @@ namespace OpenMails.Services.Outlook
 
             try
             {
-                authResult = await _outlookLoginClient.AcquireTokenInteractive(s_outlookLoginScopes)
+                authResult = await _identityClient.AcquireTokenInteractive(s_outlookLoginScopes)
                     .WithPrompt(Microsoft.Identity.Client.Prompt.SelectAccount)
                     .ExecuteAsync();
 

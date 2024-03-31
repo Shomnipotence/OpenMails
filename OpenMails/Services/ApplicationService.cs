@@ -11,6 +11,7 @@ using Windows.UI.ViewManagement;
 using Windows.UI;
 using Windows.UI.Xaml;
 using Windows.ApplicationModel.Core;
+using OpenMails.ViewModels;
 
 namespace OpenMails.Services
 {
@@ -20,13 +21,16 @@ namespace OpenMails.Services
     internal class ApplicationService : IHostedService
     {
         private readonly NavigationService _navigationService;
+        private readonly StorageService _storageService;
         private readonly AuthService _authService;
 
         public ApplicationService(
             NavigationService navigationService,
+            StorageService storageService,
             AuthService authService)
         {
             _navigationService = navigationService;
+            _storageService = storageService;
             _authService = authService;
         }
 
@@ -48,6 +52,11 @@ namespace OpenMails.Services
             List<IMailService> allLoginedServices = new();
             await foreach (var mailService in _authService.GetAllLoginedServicesAsync(cancellationToken))
                 allLoginedServices.Add(mailService);
+
+            // 将已经登陆的存入 MainPageViewModel
+            var mainPageViewModel = App.Host.Services.GetRequiredService<MainPageViewModel>();
+            foreach (var mailService in allLoginedServices)
+                mainPageViewModel.MailServices.Add(mailService);
 
             // 根据登陆状态导航到对应页面
             if (allLoginedServices.Count == 0)

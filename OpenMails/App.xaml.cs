@@ -39,6 +39,7 @@ namespace OpenMails
                     services
                         .AddHostedService<ApplicationService>()
                         .AddSingleton<NavigationService>()
+                        .AddSingleton<StorageService>()
                         .AddSingleton<AuthService>();
 
                     // views
@@ -71,7 +72,7 @@ namespace OpenMails
         /// <param name="e">Details about the launch request and process.</param>
         protected override void OnLaunched(LaunchActivatedEventArgs e)
         {
-            Host.Start();
+            _ = Host.StartAsync();
 
             //if (e.PrelaunchActivated == false)
             //{

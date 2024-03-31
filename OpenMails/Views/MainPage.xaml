@@ -101,6 +101,7 @@
                            MenuItemsSource="{x:Bind ViewModel.NavigationViewItems,Mode=OneWay}"
                            SelectedItem="{x:Bind ViewModel.SelectedNavigationItem,Mode=TwoWay}"
                            IsPaneOpen="{x:Bind ViewModel.IsNavigationViewPaneOpen,Mode=TwoWay}"
+                           ItemInvoked="NavigationView_ItemInvoked"
                            PaneDisplayMode="Auto"
                            IsTitleBarAutoPaddingEnabled="False"
                            IsPaneToggleButtonVisible="False"
