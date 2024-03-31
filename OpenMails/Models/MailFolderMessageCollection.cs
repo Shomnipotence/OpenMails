@@ -26,19 +26,29 @@ namespace OpenMails.Models
         {
             int skip = Count;
             int loadedCount = 0;
-            await foreach (var message in MailService.GetMessagesInFolder(Folder, skip, take, default))
+            try
             {
-                Add(message);
-                loadedCount++;
+                await foreach (var message in MailService.GetMessagesInFolder(Folder, skip, take, default))
+                {
+                    Add(message);
+                    loadedCount++;
+                }
+
+                if (loadedCount < take)
+                    _hasMoreItems = false;
+
+                return new LoadMoreItemsResult()
+                {
+                    Count = (uint)loadedCount,
+                };
             }
-
-            if (loadedCount < take)
-                _hasMoreItems = false;
-
-            return new LoadMoreItemsResult()
+            catch (Exception)
             {
-                Count = (uint)loadedCount,
-            };
+                return new LoadMoreItemsResult()
+                {
+                    Count = 0
+                };
+            }
         }
 
         public IAsyncOperation<LoadMoreItemsResult> LoadMoreItemsAsync(uint count)

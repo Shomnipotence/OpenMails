@@ -52,44 +52,51 @@ namespace OpenMails.ViewModels
             if (value is null)
                 return;
 
-            var loadingNavigationItems = new ObservableCollection<object>();
-            if (_cachedServiceNavigationItems.TryGetValue(value, out var cachedNavigationItems))
-                NavigationViewItems = cachedNavigationItems;
-            else
+            try
+            {
+                var loadingNavigationItems = new ObservableCollection<object>();
+                if (_cachedServiceNavigationItems.TryGetValue(value, out var cachedNavigationItems))
+                    NavigationViewItems = cachedNavigationItems;
+                else
+                    NavigationViewItems = loadingNavigationItems;
+
+                // 加载文件夹
+                await foreach (var mailFolder in value.GetAllFoldersAsync(default))
+                {
+                    MailFolderWrapper.PopulateCollection(loadingNavigationItems, mailFolder);
+
+                    // 如果当前界面上显示的导航项是正在加载的
+                    if (NavigationViewItems == loadingNavigationItems)
+                    {
+                        if (SelectedNavigationItem is null)
+                        {
+                            // 选择第一个文件夹
+                            // TODO: 这里设定已选择项之后, 界面会有一个 BUG, 想办法修复下
+                            SelectedNavigationItem = loadingNavigationItems
+                                .OfType<MailFolderWrapper>()
+                                .FirstOrDefault();
+                        }
+                    }
+                }
+
+                // 当前是否正在用加载完毕的项替换缓存好的项
+                bool replaceNavigationViewItems = NavigationViewItems != loadingNavigationItems;
                 NavigationViewItems = loadingNavigationItems;
 
-            // 加载文件夹
-            await foreach (var mailFolder in value.GetAllFoldersAsync(default))
-            {
-                MailFolderWrapper.PopulateCollection(loadingNavigationItems, mailFolder);
-
-                // 如果当前界面上显示的导航项是正在加载的
-                if (NavigationViewItems == loadingNavigationItems)
+                if (replaceNavigationViewItems)
                 {
-                    if (SelectedNavigationItem is null)
+                    if (SelectedNavigationItem is MailFolderWrapper selectedMailFolder)
                     {
-                        // 选择第一个文件夹
-                        // TODO: 这里设定已选择项之后, 界面会有一个 BUG, 想办法修复下
+                        // 选择匹配的文件夹
                         SelectedNavigationItem = loadingNavigationItems
                             .OfType<MailFolderWrapper>()
-                            .FirstOrDefault();
+                            .FirstOrDefault(folder => folder.MailFolder.Id == selectedMailFolder.MailFolder.Id);
                     }
                 }
             }
-
-            // 当前是否正在用加载完毕的项替换缓存好的项
-            bool replaceNavigationViewItems = NavigationViewItems != loadingNavigationItems;
-            NavigationViewItems = loadingNavigationItems;
-
-            if (replaceNavigationViewItems)
+            catch (System.OperationCanceledException)
             {
-                if (SelectedNavigationItem is MailFolderWrapper selectedMailFolder)
-                {
-                    // 选择匹配的文件夹
-                    SelectedNavigationItem = loadingNavigationItems
-                        .OfType<MailFolderWrapper>()
-                        .FirstOrDefault(folder => folder.MailFolder.Id == selectedMailFolder.MailFolder.Id);
-                }
+                // do nothing
             }
         }
 
