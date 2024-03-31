@@ -16,6 +16,13 @@
 
 <br/>
 
+## Objective
+
+We're striving to create a UWP Mail client for Windows.
+
+![image](https://github.com/MicaApps/Mail/assets/6630660/076a560a-0d83-4779-ad33-6c1fbfb5a390)
+
+
 ## 项目结构
 
 1. OpenMails: 主项目
