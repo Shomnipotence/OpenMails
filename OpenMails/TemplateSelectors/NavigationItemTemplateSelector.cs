@@ -27,4 +27,5 @@ namespace OpenMails.TemplateSelectors
             return SelectTemplateCore(item);
         }
     }
+
 }

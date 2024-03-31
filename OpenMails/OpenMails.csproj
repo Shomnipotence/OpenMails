@@ -151,9 +151,11 @@
     <Compile Include="Services\Outlook\OutlookAuthService.cs" />
     <Compile Include="Services\Outlook\OutlookMailService.cs" />
     <Compile Include="Services\StorageService.cs" />
-    <Compile Include="TemplateSelectors\MailMessageTemplateSelector.cs" />
+    <Compile Include="TemplateSelectors\NavigationItemTemplateSelector.cs" />
+    <Compile Include="TemplateSelectors\NavigationViewContentTempletTemplateSelector.cs" />
     <Compile Include="ViewModels\LoginPageViewModel.cs" />
     <Compile Include="ViewModels\MainPageViewModel.cs" />
+    <Compile Include="ViewModels\SettingsPageViewModel.cs" />
     <Compile Include="Views\CommonTitleBar.xaml.cs">
       <DependentUpon>CommonTitleBar.xaml</DependentUpon>
     </Compile>
@@ -305,9 +307,7 @@
       <Name>OpenMails.Secrets</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Utilities\" />
-  </ItemGroup>
+  <ItemGroup />
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
     <VisualStudioVersion>14.0</VisualStudioVersion>
   </PropertyGroup>

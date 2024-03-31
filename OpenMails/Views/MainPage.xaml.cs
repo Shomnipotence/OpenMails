@@ -114,13 +114,14 @@ namespace OpenMails.Views
 
         private void NavigationView_ItemInvoked(Microsoft.UI.Xaml.Controls.NavigationView sender, Microsoft.UI.Xaml.Controls.NavigationViewItemInvokedEventArgs args)
         {
-#if DEBUG
             if (args.IsSettingsInvoked)
             {
-                App.Host.Services
-                    .GetRequiredService<NavigationService>()
-                    .NavigateToLoginPage();
-#endif
+                navigationFrame.Content = App.Host.Services
+                    .GetRequiredService<SettingsPage>();
+            }
+            else
+            {
+                navigationFrame.Content = mailsView;
             }
         }
     }

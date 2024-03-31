@@ -45,12 +45,14 @@ namespace OpenMails
                     // views
                     services
                         .AddSingleton<LoginPage>()
-                        .AddSingleton<MainPage>();
+                        .AddSingleton<MainPage>()
+                        .AddSingleton<SettingsPage>();
 
                     // view models
                     services
                         .AddSingleton<LoginPageViewModel>()
-                        .AddSingleton<MainPageViewModel>();
+                        .AddSingleton<MainPageViewModel>()
+                        .AddSingleton<SettingsPageViewModel>();
                 })
                 .Build();
         }
