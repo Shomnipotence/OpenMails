@@ -18,7 +18,7 @@
     <ProjectTypeGuids>{A5A43C5B-DE2A-4C0C-9213-0A381AF9435A};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <WindowsXamlEnableOverview>true</WindowsXamlEnableOverview>
     <AppxPackageSigningEnabled>false</AppxPackageSigningEnabled>
-    <LangVersion>latest</LangVersion>
+    <LangVersion>12.0</LangVersion>
     <Nullable>enable</Nullable>
     <GenerateTemporaryStoreCertificate>True</GenerateTemporaryStoreCertificate>
   </PropertyGroup>
@@ -123,6 +123,7 @@
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
     <Compile Include="Behaviors\EmailAddressPersonPictureBehavior.cs" />
+    <Compile Include="Behaviors\MailServicePersonPictrueBehavior.cs" />
     <Compile Include="Behaviors\WebView2AutoHeightBehavior.cs" />
     <Compile Include="Behaviors\WebView2CoreWebViewBehavior.cs" />
     <Compile Include="Behaviors\WebView2RedirectScrollingBehavior.cs" />

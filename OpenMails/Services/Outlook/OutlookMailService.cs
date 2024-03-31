@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
@@ -12,6 +13,7 @@ using Microsoft.Kiota.Abstractions.Authentication;
 using OpenMails.Extensions;
 using OpenMails.Models;
 using Windows.UI.Xaml.Media;
+using Windows.UI.Xaml.Media.Imaging;
 
 #nullable enable
 
@@ -19,7 +21,7 @@ namespace OpenMails.Services.Outlook
 {
     public class OutlookMailService : IMailService
     {
-        static readonly string[] s_graphScoped = new[] { "Mail.ReadWrite" };
+        static readonly string[] s_graphScoped = ["User.Read", "Mail.ReadWrite"];
 
         IAccount _account;
         GraphServiceClient _graphServiceClient;
@@ -45,13 +47,6 @@ namespace OpenMails.Services.Outlook
 
         public string Name => _account.GetTenantProfiles().FirstOrDefault()?.ClaimsPrincipal?.FindFirst("name")?.Value ?? string.Empty;
         public string Address => _account.Username;
-        public ImageSource Avatar
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
-        }
 
         /// <summary>
         /// 获取所有文件夹, 无论层级
@@ -210,6 +205,24 @@ namespace OpenMails.Services.Outlook
 
             foreach (var message in response.Value)
                 yield return message.ToCommonMailMessage();
+        }
+
+        public async Task<ImageSource?> GetAvatarAsync(CancellationToken cancellationToken)
+        {
+            try
+            {
+                var photo = await _graphServiceClient.Me.Photo.Content.GetAsync();
+                var bitmap = new BitmapImage();
+                MemoryStream ms = new();
+                await photo.CopyToAsync(ms);
+                ms.Position = 0;
+                await bitmap.SetSourceAsync(ms.AsRandomAccessStream());
+                return bitmap;
+            }
+            catch
+            {
+                return null;
+            }
         }
 
         public class OutlookMailServiceAuthenticationProvider : IAuthenticationProvider

@@ -4,10 +4,7 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
-using OpenMails;
 using Microsoft.Identity.Client;
-using Windows.Storage;
-using Microsoft.Identity.Client.Extensions.Msal;
 
 #nullable enable
 
@@ -17,7 +14,7 @@ namespace OpenMails.Services.Outlook
     {
         static readonly string s_cacheFileName = "AuthCache";
         static readonly string s_outlookLoginInstance = "https://login.microsoftonline.com/";
-        static readonly string[] s_outlookLoginScopes = new string[] { "Mail.ReadWrite", "offline_access" };
+        static readonly string[] s_outlookLoginScopes = ["User.Read", "Mail.ReadWrite", "offline_access"];
 
         IPublicClientApplication _identityClient;
 

@@ -1,11 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Runtime.CompilerServices;
-using System.Text;
+﻿using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using OpenMails.Models;
 using Windows.UI.Xaml.Media;
+
+#nullable enable
 
 namespace OpenMails.Services
 {
@@ -33,7 +32,7 @@ namespace OpenMails.Services
         /// <summary>
         /// 用户头像
         /// </summary>
-        public ImageSource Avatar { get; }
+        public Task<ImageSource?> GetAvatarAsync(CancellationToken cancellationToken);
 
         /// <summary>
         /// 获取所有文件夹, 不论层级, 不论父子关系
