@@ -152,7 +152,6 @@
     <Compile Include="Services\Outlook\OutlookMailService.cs" />
     <Compile Include="Services\StorageService.cs" />
     <Compile Include="TemplateSelectors\MailMessageTemplateSelector.cs" />
-    <Compile Include="Utilities\TaskUtils.cs" />
     <Compile Include="ViewModels\LoginPageViewModel.cs" />
     <Compile Include="ViewModels\MainPageViewModel.cs" />
     <Compile Include="Views\CommonTitleBar.xaml.cs">
@@ -261,7 +260,9 @@
       <Name>OpenMails.Secrets</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="Utilities\" />
+  </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
     <VisualStudioVersion>14.0</VisualStudioVersion>
   </PropertyGroup>
