@@ -81,7 +81,8 @@
                 <!--搜索框-->
                 <AutoSuggestBox Grid.Column="1"
                                 VerticalAlignment="Center"
-                                HorizontalAlignment="Stretch">
+                                HorizontalAlignment="Stretch"
+                                PlaceholderText="Search">
                     <AutoSuggestBox.QueryIcon>
                         <ui:AnimatedIcon Width="16"
                                          Height="16">
