@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -30,7 +31,14 @@ namespace OpenMails.Models
 
             if (mailService is not null)
             {
-                mainPageViewModel.MailServices.Add(mailService);
+                // 仅在不存在相同服务时添加
+                if (!mainPageViewModel.MailServices
+                    .Any(service => service.Name == mailService.Name 
+                        && service.Address == mailService.Address))
+                {
+                    mainPageViewModel.MailServices.Add(mailService);
+                }
+
                 loginPage.OnLoginCompleted();
             }
         }
