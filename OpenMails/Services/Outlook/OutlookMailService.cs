@@ -10,6 +10,7 @@ using Microsoft.Graph.Models;
 using Microsoft.Identity.Client;
 using Microsoft.Kiota.Abstractions;
 using Microsoft.Kiota.Abstractions.Authentication;
+using OpenMails.Enums;
 using OpenMails.Extensions;
 using OpenMails.Models;
 using Windows.UI.Xaml.Media;
@@ -21,10 +22,13 @@ namespace OpenMails.Services.Outlook
 {
     public class OutlookMailService : IMailService
     {
-        static readonly string[] s_graphScoped = ["User.Read", "Mail.ReadWrite"];
+        private static readonly string[] s_graphScoped
+            = ["User.Read", "Mail.ReadWrite"];
+        private static readonly string[] s_wellKnownFolderNames
+            = ["Inbox", "Archive", "SentItems", "DeletedItems", "JunkEmail", "Drafts", "SyncIssues"];
 
-        IAccount _account;
-        GraphServiceClient _graphServiceClient;
+        private IAccount _account;
+        private GraphServiceClient _graphServiceClient;
 
         /// <summary>
         /// 
@@ -48,6 +52,21 @@ namespace OpenMails.Services.Outlook
         public string Name => _account.GetTenantProfiles().FirstOrDefault()?.ClaimsPrincipal?.FindFirst("name")?.Value ?? string.Empty;
         public string Address => _account.Username;
 
+        private MailFolderIcon GetIconFromWellKnownName(string folderName)
+        {
+            return folderName switch
+            {
+                "Inbox" => MailFolderIcon.Inbox,
+                "Archive" => MailFolderIcon.Archive,
+                "SentItems" => MailFolderIcon.SentItems,
+                "DeletedItems" => MailFolderIcon.DeletedItems,
+                "JunkEmail" => MailFolderIcon.JunkEmail,
+                "Drafts" => MailFolderIcon.Drafts,
+                "SyncIssues" => MailFolderIcon.SyncIssues,
+                _ => MailFolderIcon.Default
+            };
+        }
+
         /// <summary>
         /// 获取所有文件夹, 无论层级
         /// </summary>
@@ -62,11 +81,34 @@ namespace OpenMails.Services.Outlook
                 rootFolders.Add(rootFolder);
                 yield return rootFolder;
             }
-            
+
             foreach (var rootFolder in rootFolders)
             {
                 await foreach (var childFolder in RecursiveGetAllFoldersInFolder(rootFolder, cancellationToken))
                     yield return childFolder;
+            }
+        }
+
+        public async IAsyncEnumerable<Models.MailFolder> GetAllCommonFoldersAsync(
+            [EnumeratorCancellation] CancellationToken cancellationToken = default)
+        {
+            foreach (var folderName in s_wellKnownFolderNames)
+            {
+                var result = await _graphServiceClient.Me.MailFolders[folderName].GetAsync(parameters => { }, cancellationToken);
+                yield return result.ToCommonMailFolder(GetIconFromWellKnownName(folderName));
+            }
+        }
+
+        public async IAsyncEnumerable<Models.MailFolder> GetAllCustomFoldersAsync(
+            [EnumeratorCancellation] CancellationToken cancellationToken = default)
+        {
+            var allCommonFolders = await GetAllCommonFoldersAsync(cancellationToken).ToArrayAsync();
+            await foreach (var mailFolder in GetAllFoldersAsync(cancellationToken))
+            {
+                if (allCommonFolders.Any(commonMailFolder => commonMailFolder.Id == mailFolder.Id))
+                    continue;
+
+                yield return mailFolder;
             }
         }
 

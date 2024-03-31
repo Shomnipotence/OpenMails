@@ -42,6 +42,20 @@ namespace OpenMails.Services
         public IAsyncEnumerable<MailFolder> GetAllFoldersAsync(CancellationToken cancellationToken = default);
 
         /// <summary>
+        /// 获取所有常规文件夹(自带文件夹), 不论层级, 不论父子关系
+        /// </summary>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        public IAsyncEnumerable<MailFolder> GetAllCommonFoldersAsync(CancellationToken cancellationToken = default);
+
+        /// <summary>
+        /// 获取所有自定义文件夹(用户自己创建的文件夹), 不论层级, 不论父子关系
+        /// </summary>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        public IAsyncEnumerable<MailFolder> GetAllCustomFoldersAsync(CancellationToken cancellationToken = default);
+
+        /// <summary>
         /// 获取所有邮件, 不论这个邮件处于哪个文件夹
         /// </summary>
         /// <param name="cancellationToken"></param>

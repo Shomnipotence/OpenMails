@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.UI.Xaml.Controls;
@@ -60,8 +61,14 @@ namespace OpenMails.ViewModels
                 else
                     NavigationViewItems = loadingNavigationItems;
 
+                if (MailServices.Count > 0)
+                {
+                    // add separator
+                    loadingNavigationItems.Add(new NavigationViewItemSeparator());
+                }
+
                 // 加载文件夹
-                await foreach (var mailFolder in value.GetAllFoldersAsync(default))
+                await foreach (var mailFolder in value.GetAllCommonFoldersAsync(default))
                 {
                     MailFolderWrapper.PopulateCollection(loadingNavigationItems, mailFolder);
 
@@ -70,13 +77,22 @@ namespace OpenMails.ViewModels
                     {
                         if (SelectedNavigationItem is null)
                         {
+                            await Task.Delay(1);
+
                             // 选择第一个文件夹
-                            // TODO: 这里设定已选择项之后, 界面会有一个 BUG, 想办法修复下
                             SelectedNavigationItem = loadingNavigationItems
                                 .OfType<MailFolderWrapper>()
                                 .FirstOrDefault();
                         }
                     }
+                }
+
+                // add separator
+                loadingNavigationItems.Add(new NavigationViewItemSeparator());
+
+                await foreach (var mailFolder in value.GetAllCustomFoldersAsync(default))
+                {
+                    MailFolderWrapper.PopulateCollection(loadingNavigationItems, mailFolder);
                 }
 
                 // 当前是否正在用加载完毕的项替换缓存好的项

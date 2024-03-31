@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using OpenMails.Enums;
 using OpenMails.Models;
 
 namespace OpenMails.Extensions
@@ -17,9 +18,9 @@ namespace OpenMails.Extensions
         /// </summary>
         /// <param name="folder"></param>
         /// <returns></returns>
-        public static Models.MailFolder ToCommonMailFolder(this Microsoft.Graph.Models.MailFolder folder)
+        public static Models.MailFolder ToCommonMailFolder(this Microsoft.Graph.Models.MailFolder folder, MailFolderIcon icon = MailFolderIcon.Default)
         {
-            return new OpenMails.Models.MailFolder(folder.Id, folder.DisplayName, folder.DisplayName, folder.ParentFolderId, (folder.TotalItemCount ?? 0) == 0);
+            return new OpenMails.Models.MailFolder(folder.Id, folder.DisplayName, folder.DisplayName, icon, folder.ParentFolderId, (folder.TotalItemCount ?? 0) == 0);
         }
 
         /// <summary>

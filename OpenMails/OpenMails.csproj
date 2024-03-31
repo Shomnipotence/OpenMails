@@ -130,9 +130,11 @@
     <Compile Include="Converters\BooleanInvertConverter.cs" />
     <Compile Include="Converters\BooleanToVisibilityConverter.cs" />
     <Compile Include="Converters\CollectionToBooleanConverter.cs" />
+    <Compile Include="Converters\MailFolderIconConverter.cs" />
     <Compile Include="Converters\ValueToBooleanConverter.cs" />
     <Compile Include="Converters\ValueConverterGroup.cs" />
     <Compile Include="Enums\GravatarFallback.cs" />
+    <Compile Include="Enums\MailFolderIcon.cs" />
     <Compile Include="Extensions\OutlookExtensions.cs" />
     <Compile Include="Models\Wrappers\MailAuthServiceWrapper.cs" />
     <Compile Include="Models\MailFolder.cs" />
@@ -141,6 +143,7 @@
     <Compile Include="Models\MailFolderMessageCollection.cs" />
     <Compile Include="Models\MailMessageContent.cs" />
     <Compile Include="Models\Recipient.cs" />
+    <Compile Include="Models\Wrappers\MailMessageWrapper.cs" />
     <Compile Include="Services\ApplicationService.cs" />
     <Compile Include="Services\IMailAuthService.cs" />
     <Compile Include="Services\IMailService.cs" />
@@ -148,6 +151,8 @@
     <Compile Include="Services\Outlook\OutlookAuthService.cs" />
     <Compile Include="Services\Outlook\OutlookMailService.cs" />
     <Compile Include="Services\StorageService.cs" />
+    <Compile Include="TemplateSelectors\MailMessageTemplateSelector.cs" />
+    <Compile Include="Utilities\TaskUtils.cs" />
     <Compile Include="ViewModels\LoginPageViewModel.cs" />
     <Compile Include="ViewModels\MainPageViewModel.cs" />
     <Compile Include="Views\CommonTitleBar.xaml.cs">
@@ -161,6 +166,9 @@
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Services\AuthService.cs" />
+    <Compile Include="Views\SettingsPage.xaml.cs">
+      <DependentUpon>SettingsPage.xaml</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <AppxManifest Include="Package.appxmanifest">
@@ -197,6 +205,10 @@
     <Page Include="Views\MainPage.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\SettingsPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
   </ItemGroup>
   <ItemGroup>

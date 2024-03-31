@@ -14,6 +14,7 @@
     xmlns:vm="using:OpenMails.ViewModels"
     xmlns:services="using:OpenMails.Services"
     xmlns:converters="using:OpenMails.Converters"
+    xmlns:tpselector="using:OpenMails.TemplateSelectors"
     xmlns:i="using:Microsoft.Xaml.Interactivity"
     xmlns:mybehaviors="using:OpenMails.Behaviors"
     mc:Ignorable="d"
@@ -21,6 +22,7 @@
     ui:BackdropMaterial.ApplyToRootOrPageBackground="True">
 
     <Page.Resources>
+        <converters:MailFolderIconConverter x:Key="MailFolderIconConverter"/>
         <converters:BooleanToVisibilityConverter x:Key="Boolean2VisibilityConverter"/>
 
         <converters:ValueConverterGroup x:Key="Collection2VisibilityConverter">
@@ -69,7 +71,8 @@
                 </Grid.ColumnDefinitions>
 
                 <Grid>
-                    <Button Style="{ThemeResource PaneToggleButtonStyle}"
+                    <Button Width="48"
+                            Style="{ThemeResource PaneToggleButtonStyle}"
                             Command="{x:Bind ViewModel.ToggleNavigationViewPaneCommand}"
                             VerticalAlignment="Center"
                             HorizontalAlignment="Left"/>
@@ -98,8 +101,8 @@
 
         <!--页面主内容, 导航视图-->
         <ui:NavigationView Margin="0 48 0 0"
-                           MenuItemsSource="{x:Bind ViewModel.NavigationViewItems,Mode=OneWay}"
                            SelectedItem="{x:Bind ViewModel.SelectedNavigationItem,Mode=TwoWay}"
+                           MenuItemsSource="{x:Bind ViewModel.NavigationViewItems,Mode=OneWay}"
                            IsPaneOpen="{x:Bind ViewModel.IsNavigationViewPaneOpen,Mode=TwoWay}"
                            ItemInvoked="NavigationView_ItemInvoked"
                            PaneDisplayMode="Auto"
@@ -132,13 +135,23 @@
                 </ListView>
             </ui:NavigationView.PaneCustomContent>
 
-            <!--邮箱文件夹-->
-            <ui:NavigationView.MenuItemTemplate>
-                <DataTemplate x:DataType="m:MailFolderWrapper">
-                    <ui:NavigationViewItem Content="{x:Bind MailFolder.Name}"
-                                           MenuItemsSource="{x:Bind SubFolders}"/>
-                </DataTemplate>
-            </ui:NavigationView.MenuItemTemplate>
+            <!--邮箱文件夹项与分隔符-->
+            <ui:NavigationView.MenuItemTemplateSelector>
+                <tpselector:NavigationItemTemplateSelector>
+                    <tpselector:NavigationItemTemplateSelector.MailFolderTemplate>
+                        <DataTemplate x:DataType="m:MailFolderWrapper">
+                            <ui:NavigationViewItem Content="{x:Bind MailFolder.Name}"
+                                           MenuItemsSource="{x:Bind SubFolders}"
+                                           Icon="{x:Bind MailFolder.Icon,Converter={StaticResource MailFolderIconConverter}}"/>
+                        </DataTemplate>
+                    </tpselector:NavigationItemTemplateSelector.MailFolderTemplate>
+                    <tpselector:NavigationItemTemplateSelector.SeparatorTemplate>
+                        <DataTemplate>
+                            <ui:NavigationViewItemSeparator/>
+                        </DataTemplate>
+                    </tpselector:NavigationItemTemplateSelector.SeparatorTemplate>
+                </tpselector:NavigationItemTemplateSelector>
+            </ui:NavigationView.MenuItemTemplateSelector>
 
             <!--邮件消息列表与消息查看-->
             <mstkui:ListDetailsView ItemsSource="{x:Bind ViewModel.CurrentFolderMailMessages,Mode=OneWay}"
