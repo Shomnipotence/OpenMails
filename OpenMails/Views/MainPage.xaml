@@ -56,10 +56,10 @@
                 <Rectangle Width="48"/>
 
                 <!--标题-->
-                <TextBlock Grid.Column="0"
+                <!--<TextBlock Grid.Column="0"
                            Text="Electronic Mails"
                            VerticalAlignment="Center"
-                           HorizontalAlignment="Left"/>
+                           HorizontalAlignment="Left"/>-->
             </StackPanel>
 
             <!--操作区域-->
