@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using MailApp.Enums;
 using MailApp.Models;
+using Microsoft.Kiota.Abstractions;
 
 namespace MailApp.Extensions
 {
@@ -13,6 +14,20 @@ namespace MailApp.Extensions
     /// </summary>
     internal static class OutlookExtensions
     {
+        public static void PopulateToParameters(
+            this MailMessageQuery query,
+            RequestConfiguration<Microsoft.Graph.Me.MailFolders.Item.Messages.MessagesRequestBuilder.MessagesRequestBuilderGetQueryParameters> parameters)
+        {
+            // TODO: 实现抽象查询到 Graph API 参数的填充
+        }
+
+        public static void PopulateToParameters(
+            this MailMessageQuery query, 
+            RequestConfiguration<Microsoft.Graph.Me.Messages.MessagesRequestBuilder.MessagesRequestBuilderGetQueryParameters> parameters)
+        {
+            // TODO: 实现抽象查询到 Graph API 参数的填充
+        }
+
         /// <summary>
         /// 将 Outlook Graph 邮箱文件夹转换为当前项目抽象的文件夹
         /// </summary>

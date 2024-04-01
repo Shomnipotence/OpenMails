@@ -13,7 +13,7 @@
 
     <Grid>
         <TextBlock Padding="28 0"
-                   Text="Electronic Mails" 
+                   Text="{x:Bind Strings.StringAppName,Mode=OneWay}" 
                    VerticalAlignment="Center"
                    HorizontalAlignment="Left"/>
     </Grid>

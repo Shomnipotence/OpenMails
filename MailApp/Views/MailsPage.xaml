@@ -1,0 +1,275 @@
+﻿<Page
+    x:Class="MailApp.Views.MailsPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:MailApp.Views"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:ui="using:Microsoft.UI.Xaml.Controls"
+    xmlns:tkui="using:CommunityToolkit.WinUI.Controls"
+    xmlns:mstkui="using:Microsoft.Toolkit.Uwp.UI.Controls"
+    xmlns:visuals="using:Microsoft.UI.Xaml.Controls.AnimatedVisuals"
+    xmlns:v="using:MailApp.Views"
+    xmlns:m="using:MailApp.Models"
+    xmlns:vm="using:MailApp.ViewModels"
+    xmlns:services="using:MailApp.Services"
+    xmlns:converters="using:MailApp.Converters"
+    xmlns:tpselector="using:MailApp.TemplateSelectors"
+    xmlns:i="using:Microsoft.Xaml.Interactivity"
+    xmlns:mybehaviors="using:MailApp.Behaviors"
+    mc:Ignorable="d"
+    Loading="Page_Loading"
+    d:Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+
+    <Page.Resources>
+
+        <converters:BooleanToVisibilityConverter x:Key="Boolean2VisibilityConverter"/>
+
+        <converters:ValueConverterGroup x:Key="Value2VisibilityConverter">
+            <converters:ValueToBooleanConverter/>
+            <converters:BooleanToVisibilityConverter/>
+        </converters:ValueConverterGroup>
+
+        <converters:ValueConverterGroup x:Key="InvertBoolean2VisibilityConverter">
+            <converters:BooleanInvertConverter/>
+            <converters:BooleanToVisibilityConverter/>
+        </converters:ValueConverterGroup>
+    </Page.Resources>
+
+    <Grid>
+
+        <!--邮件消息列表与消息查看-->
+        <mstkui:ListDetailsView Name="mailsView"
+                                ItemsSource="{x:Bind ViewModel.Messages,Mode=OneWay}"
+                                SelectedItem="{x:Bind ViewModel.SelectedMessage}"
+                                ListHeader="{x:Bind ViewModel}"
+                                BackButtonBehavior="Manual"
+                                Background="Transparent"
+                                SelectionChanged="MailMessageListDetailsView_SelectionChanged">
+            <!--消息列表头, Focus/Other 切换-->
+            <mstkui:ListDetailsView.ListHeaderTemplate>
+                <DataTemplate x:DataType="vm:MailsPageViewModel">
+                    <Grid Visibility="{x:Bind Folder,Mode=OneWay,Converter={StaticResource Value2VisibilityConverter}}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition />
+                            <RowDefinition />
+                        </Grid.RowDefinitions>
+
+                        <!--当前邮箱文件夹名-->
+                        <TextBlock Margin="0,10,0,0" Grid.ColumnSpan="2"
+                                   Text="{x:Bind Folder.Name,Mode=OneWay}"
+                                   FontSize="15"
+                                   FontWeight="Bold"/>
+
+                        <!--Focus/Other 切换-->
+                        <ui:NavigationView x:Name="NavigationTab"
+                                           Grid.Row="1"
+                                           IsBackButtonVisible="Collapsed"
+                                           IsSettingsVisible="False"
+                                           PaneDisplayMode="Top">
+                            <ui:NavigationView.MenuItems>
+                                <ui:NavigationViewItem Content="Name" />
+                                <ui:NavigationViewItem Content="Other" />
+                            </ui:NavigationView.MenuItems>
+                        </ui:NavigationView>
+
+                        <!--新建邮件-->
+                        <Button Margin="5"
+                                Grid.Row="1"
+                                Grid.Column="1"
+                                HorizontalAlignment="Right"
+                                VerticalAlignment="Center"
+                                Style="{ThemeResource AlternateCloseButtonStyle}">
+                            <FontIcon FontSize="16"
+                                              Glyph="&#xe710;" />
+                        </Button>
+                    </Grid>
+                </DataTemplate>
+            </mstkui:ListDetailsView.ListHeaderTemplate>
+
+            <!--邮件消息列表元素模板-->
+            <mstkui:ListDetailsView.ItemTemplate>
+                <DataTemplate x:DataType="m:MailMessage">
+                    <StackPanel Orientation="Horizontal" Spacing="12" Margin="0 8">
+                        <PersonPicture Width="32"
+                                       DisplayName="{x:Bind Sender.DisplayName}">
+                            <i:Interaction.Behaviors>
+                                <mybehaviors:EmailAddressPersonPictureBehavior EmailAddress="{x:Bind Sender.EmailAddress}"/>
+                            </i:Interaction.Behaviors>
+                        </PersonPicture>
+                        <StackPanel>
+                            <TextBlock Text="{x:Bind Sender.DisplayName}"
+                                       FontWeight="Bold"
+                                       TextWrapping="NoWrap"
+                                       TextTrimming="CharacterEllipsis"/>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition/>
+                                    <ColumnDefinition Width="4"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0"
+                                                   Text="{x:Bind Subject}"
+                                                   TextWrapping="NoWrap"
+                                                   TextTrimming="CharacterEllipsis"/>
+                                <TextBlock Grid.Column="2"
+                                                   Text="Time here"
+                                                   TextWrapping="NoWrap"
+                                                   TextTrimming="CharacterEllipsis"/>
+                            </Grid>
+                            <TextBlock Text="{x:Bind Overview}"
+                                               TextWrapping="NoWrap"
+                                               TextTrimming="CharacterEllipsis"
+                                               MaxLines="1"/>
+                        </StackPanel>
+                    </StackPanel>
+                </DataTemplate>
+            </mstkui:ListDetailsView.ItemTemplate>
+
+            <!--邮件显示-->
+            <mstkui:ListDetailsView.DetailsTemplate>
+                <DataTemplate x:DataType="m:MailMessage">
+                    <ScrollViewer Padding="48 26 48 0"
+                                          x:Name="mailMessageScrollViewer">
+                        <StackPanel>
+                            <Grid Margin="0 0 0 0">
+
+                                <!--邮件标题-->
+                                <TextBlock Text="{x:Bind Subject}"
+                                                   FontSize="20"
+                                                   FontWeight="Bold"/>
+                            </Grid>
+
+                            <!--邮件发送者, 接收者, 抄送-->
+                            <mstkui:WrapPanel Margin="0 24 0 0"
+                                              HorizontalSpacing="24"
+                                              VerticalSpacing="24">
+                                <!--发件人-->
+                                <StackPanel Orientation="Horizontal" Spacing="8"
+                                                    Visibility="{x:Bind Sender,Converter={StaticResource Value2VisibilityConverter}}">
+                                    <TextBlock Text="From"
+                                               FontWeight="Bold"/>
+                                    <StackPanel>
+                                        <TextBlock Text="{x:Bind Sender.DisplayName}"/>
+                                        <TextBlock Text="{x:Bind Sender.EmailAddress}"
+                                                   Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"/>
+                                    </StackPanel>
+                                </StackPanel>
+
+                                <!--收件人-->
+                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <TextBlock Text="To"
+                                                       FontWeight="Bold"/>
+                                    <ItemsControl ItemsSource="{x:Bind To}">
+                                        <ItemsControl.ItemsPanel>
+                                            <ItemsPanelTemplate>
+                                                <mstkui:WrapPanel HorizontalSpacing="12"
+                                                                  VerticalSpacing="12"/>
+                                            </ItemsPanelTemplate>
+                                        </ItemsControl.ItemsPanel>
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate x:DataType="m:Recipient">
+                                                <StackPanel>
+                                                    <TextBlock Text="{x:Bind DisplayName}"/>
+                                                    <TextBlock Text="{x:Bind EmailAddress}"
+                                                               Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"/>
+                                                </StackPanel>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </StackPanel>
+
+                                <!--抄送-->
+                                <StackPanel Orientation="Horizontal" Spacing="8"
+                                            Visibility="{x:Bind Cc,Converter={StaticResource Collection2VisibilityConverter}}">
+                                    <TextBlock Text="CC"
+                                               FontWeight="Bold"/>
+                                    <ItemsControl ItemsSource="{x:Bind To}">
+                                        <ItemsControl.ItemsPanel>
+                                            <ItemsPanelTemplate>
+                                                <mstkui:WrapPanel HorizontalSpacing="12"
+                                                                  VerticalSpacing="12"/>
+                                            </ItemsPanelTemplate>
+                                        </ItemsControl.ItemsPanel>
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate x:DataType="m:Recipient">
+                                                <StackPanel>
+                                                    <TextBlock Text="{x:Bind DisplayName}"/>
+                                                    <TextBlock Text="{x:Bind EmailAddress}"
+                                                               Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"/>
+                                                </StackPanel>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </StackPanel>
+                            </mstkui:WrapPanel>
+
+                            <!--邮件发送者以及邮件操作菜单-->
+                            <Grid Margin="0 36 0 0">
+                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <PersonPicture Width="32"
+                                                   DisplayName="{x:Bind Sender.DisplayName}">
+                                        <i:Interaction.Behaviors>
+                                            <mybehaviors:EmailAddressPersonPictureBehavior EmailAddress="{x:Bind Sender.EmailAddress}"/>
+                                        </i:Interaction.Behaviors>
+                                    </PersonPicture>
+                                    <StackPanel>
+                                        <TextBlock Text="{x:Bind Sender.DisplayName}"/>
+                                        <TextBlock Text="{x:Bind Sender.EmailAddress}"
+                                                   Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"/>
+                                    </StackPanel>
+                                </StackPanel>
+                            </Grid>
+
+                            <ui:WebView2 Tag="{x:Bind Mode=OneWay}"
+                                         Margin="0 8 0 0"
+                                         MinHeight="500"
+                                         Loaded="WebView2_Loaded"
+                                         CoreWebView2Initialized="WebView2_CoreWebView2Initialized"
+                                         NavigationStarting="WebView2_NavigationStarting">
+                                <i:Interaction.Behaviors>
+                                    <mybehaviors:WebView2AutoHeightBehavior DefaultHeight="500"
+                                                                                    ExtraHeight="50"/>
+                                    <!--<mybehaviors:WebView2RedirectScrollingBehavior Target="{Binding ElementName=mailMessageScrollViewer}"/>-->
+                                </i:Interaction.Behaviors>
+                            </ui:WebView2>
+                        </StackPanel>
+                    </ScrollViewer>
+                </DataTemplate>
+            </mstkui:ListDetailsView.DetailsTemplate>
+
+            <mstkui:ListDetailsView.ListPaneEmptyContent>
+                <StackPanel VerticalAlignment="Center"
+                            Visibility="{x:Bind ViewModel.Folder,Mode=OneWay,Converter={StaticResource Value2VisibilityConverter}}"
+                            Spacing="32">
+
+                    <!--邮件数量不为空的时候, 显示正在加载-->
+                    <StackPanel Spacing="12"
+                                Visibility="{x:Bind ViewModel.Folder.IsEmpty,Mode=OneWay,Converter={StaticResource InvertBoolean2VisibilityConverter}}">
+                        <ui:ProgressRing/>
+                        <TextBlock HorizontalAlignment="Center" Text="Loading..."/>
+                    </StackPanel>
+
+                    <!--邮件数量为空的时候, 显示无结果-->
+                    <StackPanel Spacing="12"
+                                        Visibility="{x:Bind ViewModel.Folder.IsEmpty,Mode=OneWay,Converter={StaticResource Boolean2VisibilityConverter}}">
+                        <Border Width="100" Height="50"
+                                BorderBrush="Gray"
+                                BorderThickness="1"
+                                CornerRadius="5">
+                            <TextBlock VerticalAlignment="Center"
+                                       HorizontalAlignment="Center"
+                                       Text="空邮件的图标"/>
+                        </Border>
+                        <TextBlock HorizontalAlignment="Center" Text="Nothing here"/>
+                    </StackPanel>
+
+                </StackPanel>
+            </mstkui:ListDetailsView.ListPaneEmptyContent>
+        </mstkui:ListDetailsView>
+    </Grid>
+</Page>

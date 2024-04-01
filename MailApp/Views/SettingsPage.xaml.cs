@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
+using CommunityToolkit.Mvvm.Input;
+using MailApp.Services;
+using Microsoft.Extensions.DependencyInjection;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
 using Windows.UI.Xaml;
@@ -24,7 +27,24 @@ namespace MailApp.Views
     {
         public SettingsPage()
         {
+            DataContext = this;
+            ViewModel = App.Host.Services.GetRequiredService<SettingsPageViewModel>();
+            GlobalData = App.Host.Services.GetRequiredService<ApplicationGlobalData>();
+            Strings = App.Host.Services.GetRequiredService<I18nStrings>();
+
             this.InitializeComponent();
+        }
+
+        public SettingsPageViewModel ViewModel { get; }
+        public ApplicationGlobalData GlobalData { get; }
+        public I18nStrings Strings { get; }
+
+        [RelayCommand]
+        public void AddMail()
+        {
+            App.Host.Services
+                .GetRequiredService<NavigationService>()
+                .NavigateToLoginPage();
         }
     }
 }

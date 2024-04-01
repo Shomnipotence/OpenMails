@@ -38,20 +38,24 @@ namespace MailApp
                 {
                     services
                         .AddHostedService<ApplicationService>()
+                        .AddSingleton<ApplicationGlobalData>()
                         .AddSingleton<NavigationService>()
                         .AddSingleton<StorageService>()
-                        .AddSingleton<AuthService>();
+                        .AddSingleton<AuthService>()
+                        .AddSingleton<I18nStrings>();
 
                     // views
                     services
                         .AddSingleton<LoginPage>()
                         .AddSingleton<MainPage>()
+                        .AddSingleton<MailsPage>()
                         .AddSingleton<SettingsPage>();
 
                     // view models
                     services
                         .AddSingleton<LoginPageViewModel>()
                         .AddSingleton<MainPageViewModel>()
+                        .AddSingleton<MailsPageViewModel>()
                         .AddSingleton<SettingsPageViewModel>();
                 })
                 .Build();

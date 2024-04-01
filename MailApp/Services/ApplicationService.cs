@@ -15,10 +15,11 @@ using MailApp.ViewModels;
 
 namespace MailApp.Services
 {
+
     /// <summary>
     /// 负责程序声明周期的服务
     /// </summary>
-    internal class ApplicationService : IHostedService
+    public class ApplicationService : IHostedService
     {
         private readonly NavigationService _navigationService;
         private readonly StorageService _storageService;
@@ -45,6 +46,12 @@ namespace MailApp.Services
             var coreTitleBar = CoreApplication.GetCurrentView().TitleBar;
             coreTitleBar.ExtendViewIntoTitleBar = true;
 
+            // 初始化语言
+            var i18nStrings = App.Host.Services.GetRequiredService<I18nStrings>();
+            i18nStrings.AllowFallback = true;
+            i18nStrings.AllowFuzzyMatching = true;
+            i18nStrings.CurrentCulture = i18nStrings.AllCultures.FirstOrDefault();
+
             // 初始化所有邮箱验证服务
             _authService.MailAuthServices.Add(new OutlookAuthService());
 
@@ -53,10 +60,10 @@ namespace MailApp.Services
             await foreach (var mailService in _authService.GetAllLoginedServicesAsync(cancellationToken))
                 allLoginedServices.Add(mailService);
 
-            // 将已经登陆的存入 MainPageViewModel
-            var mainPageViewModel = App.Host.Services.GetRequiredService<MainPageViewModel>();
+            // 将已经登陆的存入全局数据
+            var globalData = App.Host.Services.GetRequiredService<ApplicationGlobalData>();
             foreach (var mailService in allLoginedServices)
-                mainPageViewModel.MailServices.Add(mailService);
+                globalData.MailServices.Add(mailService);
 
             // 根据登陆状态导航到对应页面
             if (allLoginedServices.Count == 0)

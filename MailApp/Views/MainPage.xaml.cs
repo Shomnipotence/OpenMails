@@ -20,8 +20,9 @@ using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
+using Microsoft.VisualBasic;
 
-// The Blank Page item template is documented at https://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
+#nullable enable
 
 namespace MailApp.Views
 {
@@ -30,85 +31,39 @@ namespace MailApp.Views
     /// </summary>
     public sealed partial class MainPage : Page
     {
-        WebView2 _webView2;
-
-        public MainPage(
-            MainPageViewModel viewModel)
+        public MainPage()
         {
             DataContext = this;
-            ViewModel = viewModel;
+            ViewModel = App.Host.Services.GetRequiredService<MainPageViewModel>();
+            GlobalData = App.Host.Services.GetRequiredService<ApplicationGlobalData>();
+            Strings = App.Host.Services.GetRequiredService<I18nStrings>();
 
             this.InitializeComponent();
 
             if (ViewModel.SelectedMailService is null)
-                ViewModel.SelectedMailService = ViewModel.MailServices.FirstOrDefault();
+                ViewModel.SelectedMailService = GlobalData.MailServices.FirstOrDefault();
 
             Window.Current.SetTitleBar(titleBarDragingArea);
         }
 
         public MainPageViewModel ViewModel { get; }
+        public ApplicationGlobalData GlobalData { get; }
+        public I18nStrings Strings { get; }
 
-        /// <summary>
-        /// WebView2 加载完毕时, 进行初始化操作
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void WebView2_Loaded(object sender, RoutedEventArgs e)
+        private void NavigationView_SelectionChanged(Microsoft.UI.Xaml.Controls.NavigationView sender, Microsoft.UI.Xaml.Controls.NavigationViewSelectionChangedEventArgs args)
         {
-            if (sender is not WebView2 webview2)
+            if (sender.SelectedItem is not MailFolderWrapper folderWrapper)
                 return;
 
-            // webview2 initialization
-
-            // set webview2 background as transparent
-            Environment.SetEnvironmentVariable("WEBVIEW2_DEFAULT_BACKGROUND_COLOR", "00FFFFFF");
-
-            // create core webview2
-            _ = webview2.EnsureCoreWebView2Async();
-
-            // save webveiw2 instance
-            _webView2 = webview2;
-        }
-
-        /// <summary>
-        /// WebView2 CoreWebView2 初始化完毕时进行导航
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="args"></param>
-        private void WebView2_CoreWebView2Initialized(Microsoft.UI.Xaml.Controls.WebView2 sender, Microsoft.UI.Xaml.Controls.CoreWebView2InitializedEventArgs args)
-        {
-            if (sender.Tag is not MailMessage mailMessage)
-                return;
-
-            sender.CoreWebView2.NavigateToString(mailMessage.Content.Text);
-        }
-
-        /// <summary>
-        /// 当选择的邮件改变时, 使 WebView2 导航
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void MailMessageListDetailsView_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            if (_webView2 is null || _webView2.CoreWebView2 is null)
-                return;
-            if (sender is not ListDetailsView listDetailsView ||
-                listDetailsView.SelectedItem is not MailMessage selectedMessage)
-                return;
-
-            _webView2.CoreWebView2.NavigateToString(selectedMessage.Content.Text);
-        }
-
-        private async void WebView2_NavigationStarting(WebView2 sender, Microsoft.Web.WebView2.Core.CoreWebView2NavigationStartingEventArgs args)
-        {
-            if (Uri.TryCreate(args.Uri, UriKind.RelativeOrAbsolute, out var uri))
+            if (navigationFrame.Content is MailsPage currentMailsPage)
             {
-                if (uri.Scheme.Equals("HTTP", StringComparison.OrdinalIgnoreCase) ||
-                    uri.Scheme.Equals("HTTPS", StringComparison.OrdinalIgnoreCase))
-                {
-                    args.Cancel = true;
-                    await global::Windows.System.Launcher.LaunchUriAsync(uri);
-                }
+                currentMailsPage.UpdateContent(ViewModel.SelectedMailService, folderWrapper.MailFolder);
+            }
+            else
+            {
+                navigationFrame.Navigate(
+                    typeof(MailsPage),
+                    new MailServiceAndFolder(ViewModel.SelectedMailService, folderWrapper.MailFolder));
             }
         }
 
@@ -116,12 +71,8 @@ namespace MailApp.Views
         {
             if (args.IsSettingsInvoked)
             {
-                navigationFrame.Content = App.Host.Services
-                    .GetRequiredService<SettingsPage>();
-            }
-            else
-            {
-                navigationFrame.Content = mailsView;
+                navigationFrame.Navigate(
+                    typeof(SettingsPage));
             }
         }
     }

@@ -51,12 +51,12 @@ namespace MailApp.Services
 
         public void NavigateToLoginPage()
         {
-            NavigateToSingletonPage<LoginPage>();
+            _rootFrame.Navigate(typeof(LoginPage));
         }
 
         public void NavigateToMainPage()
         {
-            NavigateToSingletonPage<MainPage>();
+            _rootFrame.Navigate(typeof(MainPage));
         }
     }
 }

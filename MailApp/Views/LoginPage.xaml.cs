@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
 using MailApp.Services;
 using MailApp.ViewModels;
+using Microsoft.Extensions.DependencyInjection;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
 using Windows.UI.Xaml;
@@ -26,14 +27,13 @@ namespace MailApp.Views
     {
         private readonly NavigationService _navigationService;
 
-        public LoginPage(
-            LoginPageViewModel viewModel,
-            NavigationService navigationService)
+        public LoginPage()
         {
-            _navigationService = navigationService;
+            var services = App.Host.Services;
+            _navigationService = services.GetRequiredService<NavigationService>();
 
             DataContext = this;
-            ViewModel = viewModel;
+            ViewModel = services.GetRequiredService<LoginPageViewModel>();
 
             this.InitializeComponent();
 

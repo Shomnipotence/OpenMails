@@ -5,10 +5,59 @@
     xmlns:local="using:MailApp.Views"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:ui="using:Microsoft.UI.Xaml.Controls"
+    xmlns:tkui="using:CommunityToolkit.WinUI.Controls"
+    xmlns:mstkui="using:Microsoft.Toolkit.Uwp.UI.Controls"
+    xmlns:visuals="using:Microsoft.UI.Xaml.Controls.AnimatedVisuals"
+    xmlns:v="using:MailApp.Views"
+    xmlns:m="using:MailApp.Models"
+    xmlns:vm="using:MailApp.ViewModels"
+    xmlns:services="using:MailApp.Services"
+    xmlns:converters="using:MailApp.Converters"
+    xmlns:tpselector="using:MailApp.TemplateSelectors"
+    xmlns:i="using:Microsoft.Xaml.Interactivity"
+    xmlns:mybehaviors="using:MailApp.Behaviors"
+    xmlns:globalization="using:System.Globalization"
     mc:Ignorable="d"
-    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+    d:Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
+    x:Name="pageSelf">
 
     <Grid>
-        
+        <StackPanel Margin="48" Spacing="12">
+            <TextBlock Text="{x:Bind Strings.StringSettings,Mode=OneWay}" 
+                       FontSize="42" 
+                       FontWeight="SemiBold"
+                       Margin="0 0 0 12"/>
+            <tkui:SettingsExpander HeaderIcon="Mail"
+                               Header="{x:Bind Strings.StringMailsManagement,Mode=OneWay}"
+                               Description="{x:Bind Strings.StringManageAllLoginedMails,Mode=OneWay}"
+                               ItemsSource="{x:Bind GlobalData.MailServices}">
+                <tkui:SettingsExpander.ItemTemplate>
+                    <DataTemplate x:DataType="services:IMailService">
+                        <tkui:SettingsCard Header="{x:Bind Name}"
+                                           Description="{x:Bind Address}"/>
+                    </DataTemplate>
+                </tkui:SettingsExpander.ItemTemplate>
+                <tkui:SettingsExpander.ItemsFooter>
+                    <StackPanel Background="{ThemeResource SettingsFlyoutBackgroundThemeBrush}"
+                                Padding="52 12 12 12">
+                        <Button HorizontalAlignment="Left"
+                                Command="{x:Bind AddMailCommand}"
+                                Content="{x:Bind Strings.StringAddMail,Mode=OneWay}"/>
+                    </StackPanel>
+                </tkui:SettingsExpander.ItemsFooter>
+            </tkui:SettingsExpander>
+            <tkui:SettingsCard HeaderIcon="World" 
+                               Header="{x:Bind Strings.StringLanguages,Mode=OneWay}">
+                <ComboBox ItemsSource="{x:Bind Strings.AllCultures,Mode=OneWay}"
+                          SelectedItem="{x:Bind Strings.CurrentCulture,Mode=TwoWay}">
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate x:DataType="globalization:CultureInfo">
+                            <TextBlock Text="{x:Bind DisplayName}"/>
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                </ComboBox>
+            </tkui:SettingsCard>
+        </StackPanel>
     </Grid>
 </Page>

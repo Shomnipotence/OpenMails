@@ -42,8 +42,6 @@ namespace MailApp.ViewModels
         public MailFolderWrapper? SelectedFolderWrapper => SelectedNavigationItem as MailFolderWrapper;
         public MailFolder? SelectedFolder => (SelectedNavigationItem as MailFolderWrapper)?.MailFolder;
 
-        public ObservableCollection<IMailService> MailServices { get; } = new();
-
         /// <summary>
         /// Load folders after selected mail service changed
         /// </summary>
@@ -61,11 +59,8 @@ namespace MailApp.ViewModels
                 else
                     NavigationViewItems = loadingNavigationItems;
 
-                if (MailServices.Count > 0)
-                {
-                    // add separator
-                    loadingNavigationItems.Add(new NavigationViewItemSeparator());
-                }
+                // add separator
+                loadingNavigationItems.Add(new NavigationViewItemSeparator());
 
                 // 加载文件夹
                 await foreach (var mailFolder in value.GetAllCommonFoldersAsync(default))
@@ -130,7 +125,7 @@ namespace MailApp.ViewModels
             if (!_cachedFolderMessages.TryGetValue(folderWrapper.MailFolder, out var folderMessageCollection))
             {
                 folderMessageCollection = _cachedFolderMessages[folderWrapper.MailFolder] = new(SelectedMailService, folderWrapper.MailFolder);
-                _ = folderMessageCollection.LoadMoreItemsAsync(18);
+                //_ = folderMessageCollection.LoadMoreItemsAsync(18);
             }
 
             CurrentFolderMailMessages = folderMessageCollection;

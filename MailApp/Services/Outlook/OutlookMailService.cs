@@ -243,7 +243,65 @@ namespace MailApp.Services.Outlook
             {
                 parameters.QueryParameters.Skip = skip;
                 parameters.QueryParameters.Top = take;
+            }, cancellationToken).ConfigureAwait(false);
+
+            foreach (var message in response.Value)
+                yield return message.ToCommonMailMessage();
+        }
+
+        /// <summary>
+        /// 查询目录中的所有邮件
+        /// </summary>
+        /// <param name="folder"></param>
+        /// <param name="query"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        public async IAsyncEnumerable<MailMessage> QueryAllMessagesInFolderAsync(
+            Models.MailFolder folder, 
+            MailMessageQuery query, 
+            [EnumeratorCancellation] CancellationToken cancellationToken)
+        {
+            var response = await _graphServiceClient.Me.MailFolders[folder.Id].Messages.GetAsync(parameters => 
+            {
+                query.PopulateToParameters(parameters);
             }, cancellationToken);
+
+            foreach (var message in response.Value)
+                yield return message.ToCommonMailMessage();
+
+            while (!string.IsNullOrEmpty(response.OdataNextLink))
+            {
+                response = await _graphServiceClient.Me.Messages
+                    .WithUrl(response.OdataNextLink)
+                    .GetAsync(cancellationToken: cancellationToken);
+
+                foreach (var message in response.Value)
+                    yield return message.ToCommonMailMessage();
+            }
+        }
+
+        /// <summary>
+        /// 查询目录中的邮件
+        /// </summary>
+        /// <param name="folder"></param>
+        /// <param name="query"></param>
+        /// <param name="skip"></param>
+        /// <param name="take"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        public async IAsyncEnumerable<MailMessage> QueryMessagesInFolder(
+            Models.MailFolder folder, 
+            MailMessageQuery query, 
+            int skip, 
+            int take,
+            [EnumeratorCancellation] CancellationToken cancellationToken)
+        {
+            var response = await _graphServiceClient.Me.MailFolders[folder.Id].Messages.GetAsync(parameters =>
+            {
+                query.PopulateToParameters(parameters);
+                parameters.QueryParameters.Skip = skip;
+                parameters.QueryParameters.Top = take;
+            }, cancellationToken).ConfigureAwait(false);
 
             foreach (var message in response.Value)
                 yield return message.ToCommonMailMessage();

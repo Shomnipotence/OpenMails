@@ -94,7 +94,16 @@ namespace MailApp.Services
         public IAsyncEnumerable<MailMessage> GetAllMessagesInFolderAsync(MailFolder folder, CancellationToken cancellationToken = default);
 
         /// <summary>
-        /// 获取目录中的邮件 (根据指定参数)
+        /// 查询目录中的所有邮件
+        /// </summary>
+        /// <param name="folder"></param>
+        /// <param name="query"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        public IAsyncEnumerable<MailMessage> QueryAllMessagesInFolderAsync(MailFolder folder, MailMessageQuery query, CancellationToken cancellationToken = default);
+
+        /// <summary>
+        /// 获取目录中的邮件
         /// </summary>
         /// <param name="folder"></param>
         /// <param name="skip"></param>
@@ -102,5 +111,16 @@ namespace MailApp.Services
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
         public IAsyncEnumerable<MailMessage> GetMessagesInFolder(MailFolder folder, int skip, int take, CancellationToken cancellationToken = default);
+
+        /// <summary>
+        /// 查询目录中的邮件
+        /// </summary>
+        /// <param name="folder"></param>
+        /// <param name="query"></param>
+        /// <param name="skip"></param>
+        /// <param name="take"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        public IAsyncEnumerable<MailMessage> QueryMessagesInFolder(MailFolder folder, MailMessageQuery query, int skip, int take, CancellationToken cancellationToken = default);
     }
 }

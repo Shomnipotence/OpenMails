@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
+using Microsoft.Extensions.DependencyInjection;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
 using Windows.UI.Xaml;
@@ -24,7 +25,12 @@ namespace MailApp.Views
     {
         public CommonTitleBar()
         {
+            DataContext = this;
+            Strings = App.Host.Services.GetRequiredService<I18nStrings>();
+
             this.InitializeComponent();
         }
+
+        public I18nStrings Strings { get; }
     }
 }

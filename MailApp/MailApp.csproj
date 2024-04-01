@@ -136,6 +136,8 @@
     <Compile Include="Enums\GravatarFallback.cs" />
     <Compile Include="Enums\MailFolderIcon.cs" />
     <Compile Include="Extensions\OutlookExtensions.cs" />
+    <Compile Include="Models\MailMessageQuery.cs" />
+    <Compile Include="Models\MailServiceAndFolder.cs" />
     <Compile Include="Models\Wrappers\MailAuthServiceWrapper.cs" />
     <Compile Include="Models\MailFolder.cs" />
     <Compile Include="Models\Wrappers\MailFolderWrapper.cs" />
@@ -144,6 +146,7 @@
     <Compile Include="Models\MailMessageContent.cs" />
     <Compile Include="Models\Recipient.cs" />
     <Compile Include="Models\Wrappers\MailMessageWrapper.cs" />
+    <Compile Include="Services\ApplicationGlobalData.cs" />
     <Compile Include="Services\ApplicationService.cs" />
     <Compile Include="Services\IMailAuthService.cs" />
     <Compile Include="Services\IMailService.cs" />
@@ -154,6 +157,7 @@
     <Compile Include="TemplateSelectors\NavigationItemTemplateSelector.cs" />
     <Compile Include="TemplateSelectors\NavigationViewContentTempletTemplateSelector.cs" />
     <Compile Include="ViewModels\LoginPageViewModel.cs" />
+    <Compile Include="ViewModels\MailsPageViewModel.cs" />
     <Compile Include="ViewModels\MainPageViewModel.cs" />
     <Compile Include="ViewModels\SettingsPageViewModel.cs" />
     <Compile Include="Views\CommonTitleBar.xaml.cs">
@@ -161,6 +165,9 @@
     </Compile>
     <Compile Include="Views\LoginPage.xaml.cs">
       <DependentUpon>LoginPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\MailsPage.xaml.cs">
+      <DependentUpon>MailsPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\MainPage.xaml.cs">
       <DependentUpon>MainPage.xaml</DependentUpon>
@@ -233,6 +240,7 @@
     <Content Include="Assets\Square44x44Logo.scale-200.png" />
     <Content Include="Assets\Square44x44Logo.targetsize-24_altform-unplated.png" />
     <Content Include="Assets\Wide310x150Logo.scale-200.png" />
+    <None Include="Strings\en.ini" />
     <None Include="Strings\zh-CN.ini" />
   </ItemGroup>
   <ItemGroup>
@@ -245,6 +253,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\LoginPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\MailsPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -302,6 +314,10 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\MailApp.I18n\MailApp.I18n.csproj">
+      <Project>{9ed930b3-3790-4d04-9b63-78388f7c32b0}</Project>
+      <Name>MailApp.I18n</Name>
+    </ProjectReference>
     <ProjectReference Include="..\MailApp.Secrets\MailApp.Secrets.csproj">
       <Project>{4629c2d2-ed51-4d01-b76c-46893a8a0994}</Project>
       <Name>MailApp.Secrets</Name>

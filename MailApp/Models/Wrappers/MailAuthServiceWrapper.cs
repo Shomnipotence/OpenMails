@@ -26,17 +26,15 @@ namespace MailApp.Models
         public async Task Login(CancellationToken cancellationToken)
         {
             var loginPage = App.Host.Services.GetRequiredService<LoginPage>();
-            var mainPageViewModel = App.Host.Services.GetRequiredService<MainPageViewModel>();
-            var mailService = await MailAuthService.LoginAsync(cancellationToken);
+            var globalData = App.Host.Services.GetRequiredService<ApplicationGlobalData>();
+            var newMailService = await MailAuthService.LoginAsync(cancellationToken);
 
-            if (mailService is not null)
+            if (newMailService is not null)
             {
                 // 仅在不存在相同服务时添加
-                if (!mainPageViewModel.MailServices
-                    .Any(service => service.Name == mailService.Name 
-                        && service.Address == mailService.Address))
+                if (!globalData.MailServices.Any(mailService => mailService.Name == newMailService.Name && mailService.Address == newMailService.Address))
                 {
-                    mainPageViewModel.MailServices.Add(mailService);
+                    globalData.MailServices.Add(newMailService);
                 }
 
                 loginPage.OnLoginCompleted();
