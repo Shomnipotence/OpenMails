@@ -27,14 +27,13 @@ namespace MailApp.Services.Outlook
         private static readonly string[] s_wellKnownFolderNames
             = ["Inbox", "Archive", "SentItems", "DeletedItems", "JunkEmail", "Drafts", "SyncIssues"];
 
-        private IAccount _account;
         private GraphServiceClient _graphServiceClient;
 
         /// <summary>
         /// 
         /// </summary>
         /// <param name="accessToken">access token from Microsoft Graph auth api</param>
-        public OutlookMailService(IAccount account, string accessToken)
+        public OutlookMailService(OutlookAuthService authService, IAccount account, string accessToken)
         {
             var pca = PublicClientApplicationBuilder
                 .Create(AppSecrets.MicrosoftGraphClientId)
@@ -42,15 +41,19 @@ namespace MailApp.Services.Outlook
                 .Build();
 
             var authProvider = new OutlookMailServiceAuthenticationProvider(accessToken);
-
-            _account = account;
+            AuthService = authService;
+            Account = account;
             _graphServiceClient = new GraphServiceClient(authProvider);
         }
 
+        public IMailAuthService AuthService { get; }
+
         public string ServiceName => "Outlook";
 
-        public string Name => _account.GetTenantProfiles().FirstOrDefault()?.ClaimsPrincipal?.FindFirst("name")?.Value ?? string.Empty;
-        public string Address => _account.Username;
+        public string Name => Account.GetTenantProfiles().FirstOrDefault()?.ClaimsPrincipal?.FindFirst("name")?.Value ?? string.Empty;
+        public string Address => Account.Username;
+
+        public IAccount Account { get; }
 
         private MailFolderIcon GetIconFromWellKnownName(string folderName)
         {
@@ -82,23 +85,51 @@ namespace MailApp.Services.Outlook
                 yield return rootFolder;
             }
 
+            List<IAsyncEnumerable<Models.MailFolder>> recursiveSubFoldersEnumerables = new();
             foreach (var rootFolder in rootFolders)
             {
-                await foreach (var childFolder in RecursiveGetAllFoldersInFolder(rootFolder, cancellationToken))
-                    yield return childFolder;
+                recursiveSubFoldersEnumerables.Add(RecursiveGetAllFoldersInFolder(rootFolder, cancellationToken));
+            }
+
+            foreach (var recursiveSubFolders in recursiveSubFoldersEnumerables)
+            {
+                await foreach (var subFolder in recursiveSubFolders)
+                {
+                    yield return subFolder;
+                }
             }
         }
 
+        /// <summary>
+        /// 获取所有公共文件夹 (非用户自建文件夹)
+        /// </summary>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
         public async IAsyncEnumerable<Models.MailFolder> GetAllCommonFoldersAsync(
             [EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
+            List<Task<Microsoft.Graph.Models.MailFolder>> allFolderTasks = new();
+
             foreach (var folderName in s_wellKnownFolderNames)
             {
-                var result = await _graphServiceClient.Me.MailFolders[folderName].GetAsync(parameters => { }, cancellationToken);
-                yield return result.ToCommonMailFolder(GetIconFromWellKnownName(folderName));
+                allFolderTasks.Add(_graphServiceClient.Me.MailFolders[folderName].GetAsync(parameters => { }, cancellationToken));
+            }
+
+            for (int i = 0; i < allFolderTasks.Count; i++)
+            {
+                var folderTask = allFolderTasks[i];
+                var wellKnownName = s_wellKnownFolderNames[i];
+
+                await folderTask;
+                yield return folderTask.Result.ToAppMailFolder(GetIconFromWellKnownName(wellKnownName), true);
             }
         }
 
+        /// <summary>
+        /// 获取所有自定义文件夹 (用户自建文件夹)
+        /// </summary>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
         public async IAsyncEnumerable<Models.MailFolder> GetAllCustomFoldersAsync(
             [EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
@@ -124,7 +155,7 @@ namespace MailApp.Services.Outlook
             var response = await _graphServiceClient.Me.Messages.GetAsync(parameter => { }, cancellationToken);
 
             foreach (var message in response.Value)
-                yield return message.ToCommonMailMessage();
+                yield return message.ToAppMailMessage();
         }
 
         /// <summary>
@@ -141,7 +172,7 @@ namespace MailApp.Services.Outlook
             }, cancellationToken);
 
             foreach (var folder in response.Value)
-                yield return folder.ToCommonMailFolder();
+                yield return folder.ToAppMailFolder();
 
             while (!string.IsNullOrEmpty(response.OdataNextLink))
             {
@@ -150,7 +181,7 @@ namespace MailApp.Services.Outlook
                     .GetAsync(cancellationToken: cancellationToken);
 
                 foreach (var folder in response.Value)
-                    yield return folder.ToCommonMailFolder();
+                    yield return folder.ToAppMailFolder();
             }
         }
 
@@ -167,7 +198,7 @@ namespace MailApp.Services.Outlook
             var response = await _graphServiceClient.Me.MailFolders[folder.Id].ChildFolders.GetAsync(parameters => { }, cancellationToken);
 
             foreach (var childFolder in response.Value)
-                yield return childFolder.ToCommonMailFolder();
+                yield return childFolder.ToAppMailFolder();
 
             while (!string.IsNullOrEmpty(response.OdataNextLink))
             {
@@ -176,7 +207,7 @@ namespace MailApp.Services.Outlook
                     .GetAsync(cancellationToken: cancellationToken);
 
                 foreach (var nextChildFolder in response.Value)
-                    yield return nextChildFolder.ToCommonMailFolder();
+                    yield return nextChildFolder.ToAppMailFolder();
             }
         }
 
@@ -190,12 +221,18 @@ namespace MailApp.Services.Outlook
             Models.MailFolder folder,
             [EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
+            List<IAsyncEnumerable<Models.MailFolder>> recursiveSubFoldersEnumerables = new();
             await foreach (var childFolder in GetAllFoldersInFolderAsync(folder, cancellationToken))
             {
                 yield return childFolder;
 
-                await foreach (var childFolder2 in RecursiveGetAllFoldersInFolder(childFolder, cancellationToken))
-                    yield return childFolder2;
+                recursiveSubFoldersEnumerables.Add(RecursiveGetAllFoldersInFolder(childFolder, cancellationToken));
+            }
+
+            foreach (var recursiveSubFolders in recursiveSubFoldersEnumerables)
+            {
+                await foreach (var deeperSubFolder in recursiveSubFolders)
+                    yield return deeperSubFolder;
             }
         }
 
@@ -212,7 +249,7 @@ namespace MailApp.Services.Outlook
             var response = await _graphServiceClient.Me.MailFolders[folder.Id].Messages.GetAsync(parameters => { }, cancellationToken);
 
             foreach (var message in response.Value)
-                yield return message.ToCommonMailMessage();
+                yield return message.ToAppMailMessage();
 
             while (!string.IsNullOrEmpty(response.OdataNextLink))
             {
@@ -221,7 +258,7 @@ namespace MailApp.Services.Outlook
                     .GetAsync(cancellationToken: cancellationToken);
 
                 foreach (var message in response.Value)
-                    yield return message.ToCommonMailMessage();
+                    yield return message.ToAppMailMessage();
             }
         }
 
@@ -243,10 +280,10 @@ namespace MailApp.Services.Outlook
             {
                 parameters.QueryParameters.Skip = skip;
                 parameters.QueryParameters.Top = take;
-            }, cancellationToken).ConfigureAwait(false);
+            }, cancellationToken);
 
             foreach (var message in response.Value)
-                yield return message.ToCommonMailMessage();
+                yield return message.ToAppMailMessage();
         }
 
         /// <summary>
@@ -257,17 +294,17 @@ namespace MailApp.Services.Outlook
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
         public async IAsyncEnumerable<MailMessage> QueryAllMessagesInFolderAsync(
-            Models.MailFolder folder, 
-            MailMessageQuery query, 
+            Models.MailFolder folder,
+            MailMessageQuery query,
             [EnumeratorCancellation] CancellationToken cancellationToken)
         {
-            var response = await _graphServiceClient.Me.MailFolders[folder.Id].Messages.GetAsync(parameters => 
+            var response = await _graphServiceClient.Me.MailFolders[folder.Id].Messages.GetAsync(parameters =>
             {
                 query.PopulateToParameters(parameters);
             }, cancellationToken);
 
             foreach (var message in response.Value)
-                yield return message.ToCommonMailMessage();
+                yield return message.ToAppMailMessage();
 
             while (!string.IsNullOrEmpty(response.OdataNextLink))
             {
@@ -276,7 +313,7 @@ namespace MailApp.Services.Outlook
                     .GetAsync(cancellationToken: cancellationToken);
 
                 foreach (var message in response.Value)
-                    yield return message.ToCommonMailMessage();
+                    yield return message.ToAppMailMessage();
             }
         }
 
@@ -290,9 +327,9 @@ namespace MailApp.Services.Outlook
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
         public async IAsyncEnumerable<MailMessage> QueryMessagesInFolder(
-            Models.MailFolder folder, 
-            MailMessageQuery query, 
-            int skip, 
+            Models.MailFolder folder,
+            MailMessageQuery query,
+            int skip,
             int take,
             [EnumeratorCancellation] CancellationToken cancellationToken)
         {
@@ -301,10 +338,10 @@ namespace MailApp.Services.Outlook
                 query.PopulateToParameters(parameters);
                 parameters.QueryParameters.Skip = skip;
                 parameters.QueryParameters.Top = take;
-            }, cancellationToken).ConfigureAwait(false);
+            }, cancellationToken);
 
             foreach (var message in response.Value)
-                yield return message.ToCommonMailMessage();
+                yield return message.ToAppMailMessage();
         }
 
         public async Task<ImageSource?> GetAvatarAsync(CancellationToken cancellationToken)
@@ -323,6 +360,68 @@ namespace MailApp.Services.Outlook
             {
                 return null;
             }
+        }
+
+        public async Task<Models.MailFolder> CreateFolderAsync(string name, CancellationToken cancellationToken = default)
+        {
+            var result = await _graphServiceClient.Me.MailFolders.PostAsync(
+                new Microsoft.Graph.Models.MailFolder()
+                {
+                    DisplayName = name,
+                }, cancellationToken: cancellationToken);
+
+            return result.ToAppMailFolder();
+        }
+
+        public async Task<Models.MailFolder> CreateSubFolderAsync(Models.MailFolder parentFolder, string name, CancellationToken cancellationToken = default)
+        {
+            var result = await _graphServiceClient.Me.MailFolders[parentFolder.Id].ChildFolders.PostAsync(
+                new Microsoft.Graph.Models.MailFolder()
+                {
+                    DisplayName = name
+                }, cancellationToken: cancellationToken);
+
+            return result.ToAppMailFolder();
+        }
+
+        public async Task DeleteFolderAsync(Models.MailFolder folder, CancellationToken cancellationToken = default)
+        {
+            await _graphServiceClient.Me.MailFolders[folder.Id].DeleteAsync(cancellationToken: cancellationToken);
+        }
+
+        public async Task DeleteMessageAsync(MailMessage message, CancellationToken cancellationToken = default)
+        {
+            await _graphServiceClient.Me.Messages[message.Id].DeleteAsync(cancellationToken: cancellationToken);
+        }
+
+        public async Task ArchiveMessageAsync(MailMessage message, CancellationToken cancellationToken = default)
+        {
+            var result = await _graphServiceClient.Me.Messages[message.Id].Move.PostAsync(new Microsoft.Graph.Me.Messages.Item.Move.MovePostRequestBody()
+            {
+                DestinationId = "Archive"
+            }, cancellationToken: cancellationToken);
+
+            message.ContainingFolderId = result.ParentFolderId;
+        }
+
+        public async Task MoveMessageAsync(MailMessage message, Models.MailFolder destinationFolder, CancellationToken cancellationToken = default)
+        {
+            var result = await _graphServiceClient.Me.Messages[message.Id].Move.PostAsync(new Microsoft.Graph.Me.Messages.Item.Move.MovePostRequestBody()
+            {
+                DestinationId = destinationFolder.Id,
+            }, cancellationToken: cancellationToken);
+
+            message.ContainingFolderId = result.ParentFolderId;
+        }
+
+        public async Task<MailMessage> CopyMessageAsync(MailMessage message, Models.MailFolder destinationFolder, CancellationToken cancellationToken = default)
+        {
+            var result = await _graphServiceClient.Me.Messages[message.Id].Copy.PostAsync(new Microsoft.Graph.Me.Messages.Item.Copy.CopyPostRequestBody()
+            {
+                DestinationId = destinationFolder.Id,
+            }, cancellationToken: cancellationToken);
+
+            return result.ToAppMailMessage();
         }
 
         public class OutlookMailServiceAuthenticationProvider : IAuthenticationProvider

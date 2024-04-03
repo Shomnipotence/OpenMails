@@ -10,10 +10,16 @@
     xmlns:v="using:MailApp.Views"
     xmlns:m="using:MailApp.Models"
     xmlns:vm="using:MailApp.ViewModels"
+    xmlns:utils="using:MailApp.Utilities"
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
     ui:BackdropMaterial.ApplyToRootOrPageBackground="True">
 
+    <Page.Resources>
+        <utils:BindingProxy x:Key="DataProxy"
+                            Data="{x:Bind}"/>
+    </Page.Resources>
+    
     <Grid>
         <v:CommonTitleBar VerticalAlignment="Top"/>
         <StackPanel VerticalAlignment="Bottom"
@@ -36,12 +42,12 @@
                     <DataTemplate x:DataType="m:MailAuthServiceWrapper">
                         <tkui:SettingsCard Header="{x:Bind Name}"
                                            IsClickEnabled="True"
-                                           Command="{x:Bind LoginCommand}"/>
+                                           Command="{x:Bind LoginCommand}"
+                                           CommandParameter="{Binding Source={StaticResource DataProxy},Path=Data}"/>
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
-            <ListView Margin="0 48"
-                      >
+            <ListView Margin="0 48">
                 <ListView.ItemTemplate>
                     <DataTemplate x:DataType="m:MailAuthServiceWrapper">
                         <TextBlock Text="{x:Bind Name}"/>

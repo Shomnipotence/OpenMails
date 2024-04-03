@@ -40,7 +40,8 @@ namespace MailApp
                         .AddHostedService<ApplicationService>()
                         .AddSingleton<ApplicationGlobalData>()
                         .AddSingleton<NavigationService>()
-                        .AddSingleton<StorageService>()
+                        .AddSingleton<CacheService>()
+                        .AddSingleton<ToastService>()
                         .AddSingleton<AuthService>()
                         .AddSingleton<I18nStrings>();
 
@@ -103,6 +104,8 @@ namespace MailApp
         /// <param name="e">Details about the suspend request.</param>
         private void OnSuspending(object sender, SuspendingEventArgs e)
         {
+            _ = Host.StopAsync();
+
             var deferral = e.SuspendingOperation.GetDeferral();
             //TODO: Save application state and stop any background activity
             deferral.Complete();

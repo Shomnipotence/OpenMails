@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using LiteDB;
 
 namespace MailApp.Models
 {
     public record class MailMessage
     {
+        [BsonCtor]
         public MailMessage(
             string id,
             string subject,
@@ -26,14 +28,25 @@ namespace MailApp.Models
             ContainingFolderId = containingFolderId ?? throw new ArgumentNullException(nameof(containingFolderId));
         }
 
-        public Recipient Sender { get; }
-        public ICollection<Recipient> To { get; }
-        public ICollection<Recipient> Cc { get; }
-        public string Overview { get; }
-        public MailMessageContent Content { get; }
+        public Recipient Sender { get; set; }
+        public ICollection<Recipient> To { get; set; }
+        public ICollection<Recipient> Cc { get; set; }
+        public string Overview { get; set; }
+        public MailMessageContent Content { get; set; }
 
-        public string Id { get; }
-        public string Subject { get; }
-        public string ContainingFolderId { get; }
+        /// <summary>
+        /// 此消息的 ID
+        /// </summary>
+        public string Id { get; set; }
+
+        /// <summary>
+        /// 主题
+        /// </summary>
+        public string Subject { get; set; }
+
+        /// <summary>
+        /// 包含此消息的文件夹的 ID
+        /// </summary>
+        public string ContainingFolderId { get; set; }
     }
 }

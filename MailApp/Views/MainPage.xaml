@@ -17,8 +17,10 @@
     xmlns:tpselector="using:MailApp.TemplateSelectors"
     xmlns:i="using:Microsoft.Xaml.Interactivity"
     xmlns:mybehaviors="using:MailApp.Behaviors"
+    xmlns:me="using:MailApp.MarkupExtensions"
+    xmlns:utils="using:MailApp.Utilities"
     mc:Ignorable="d"
-    d:Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
+    d:Background="White"
     ui:BackdropMaterial.ApplyToRootOrPageBackground="True">
 
     <Page.Resources>
@@ -39,6 +41,10 @@
             <converters:BooleanInvertConverter/>
             <converters:BooleanToVisibilityConverter/>
         </converters:ValueConverterGroup>
+
+        <utils:BindingProxy x:Key="PageSelfProxy"
+                            Data="{x:Bind}"/>
+
     </Page.Resources>
 
     <Grid>
@@ -141,10 +147,25 @@
             <ui:NavigationView.MenuItemTemplateSelector>
                 <tpselector:NavigationItemTemplateSelector>
                     <tpselector:NavigationItemTemplateSelector.MailFolderTemplate>
-                        <DataTemplate x:DataType="m:MailFolderWrapper">
-                            <ui:NavigationViewItem Content="{x:Bind MailFolder.Name}"
-                                                   MenuItemsSource="{x:Bind SubFolders}"
-                                                   Icon="{x:Bind MailFolder.Icon,Converter={StaticResource MailFolderIconConverter}}"/>
+                        <DataTemplate>
+                            <ui:NavigationViewItem Content="{Binding Value.Name}"
+                                                   MenuItemsSource="{Binding Children}"
+                                                   Icon="{Binding Value.Icon,Converter={StaticResource MailFolderIconConverter}}">
+                                <ui:NavigationViewItem.ContextFlyout>
+                                    <MenuFlyout>
+                                        <MenuFlyoutItem Icon="Folder"
+                                                        Text="{Binding Source={StaticResource PageSelfProxy},Path=Data.Strings.StringCreateSubFolder}"
+                                                        Command="{Binding Source={StaticResource PageSelfProxy},Path=Data.ViewModel.CreateSubFolderCommand,Mode=OneWay}"
+                                                        CommandParameter="{Binding Value,Mode=OneWay}"/>
+                                        <MenuFlyoutItem Icon="Delete"
+                                                        Text="{Binding Source={StaticResource PageSelfProxy},Path=Data.Strings.StringDelete,Mode=OneWay}"
+                                                        Command="{Binding Source={StaticResource PageSelfProxy},Path=Data.ViewModel.DeleteFolderCommand,Mode=OneWay}"
+                                                        CommandParameter="{Binding Value,Mode=OneWay}">
+
+                                        </MenuFlyoutItem>
+                                    </MenuFlyout>
+                                </ui:NavigationViewItem.ContextFlyout>
+                            </ui:NavigationViewItem>
                         </DataTemplate>
                     </tpselector:NavigationItemTemplateSelector.MailFolderTemplate>
                     <tpselector:NavigationItemTemplateSelector.SeparatorTemplate>
@@ -156,7 +177,7 @@
             </ui:NavigationView.MenuItemTemplateSelector>
 
             <Frame x:Name="navigationFrame">
-                
+                <!--后台代码进行导航-->
             </Frame>
 
         </ui:NavigationView>

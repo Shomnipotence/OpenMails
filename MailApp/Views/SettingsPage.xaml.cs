@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
+using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.Input;
 using MailApp.Services;
+using MailApp.Views.Dialogs;
 using Microsoft.Extensions.DependencyInjection;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
@@ -25,6 +27,8 @@ namespace MailApp.Views
     /// </summary>
     public sealed partial class SettingsPage : Page
     {
+        readonly NavigationService _navigationService = App.Host.Services.GetRequiredService<NavigationService>();
+
         public SettingsPage()
         {
             DataContext = this;
@@ -40,11 +44,22 @@ namespace MailApp.Views
         public I18nStrings Strings { get; }
 
         [RelayCommand]
-        public void AddMail()
+        public async Task AddMail()
         {
-            App.Host.Services
-                .GetRequiredService<NavigationService>()
-                .NavigateToLoginPage();
+            var loginDialog = new LoginDialog();
+            await loginDialog.ShowAsync();
+        }
+
+        [RelayCommand]
+        public async Task LogoutMail(IMailService mailService)
+        {
+            await mailService.AuthService.LogoutAsync(mailService);
+            GlobalData.MailServices.Remove(mailService);
+
+            if (GlobalData.MailServices.Count == 0)
+            {
+                _navigationService.NavigateToLoginPage();
+            }
         }
     }
 }

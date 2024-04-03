@@ -11,7 +11,7 @@ namespace MailApp.TemplateSelectors
 
         protected override DataTemplate SelectTemplateCore(object item)
         {
-            if (item is MailFolderWrapper)
+            if (item is TreeNode<MailFolder>)
                 return MailsViewTemplate;
 
             if (item is NavigationViewItem { Content: "Settings" })

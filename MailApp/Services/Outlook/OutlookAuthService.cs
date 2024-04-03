@@ -28,7 +28,7 @@ namespace MailApp.Services.Outlook
         public async IAsyncEnumerable<IMailService> GetLoginedServicesAsync(
             [EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
-            var accounts = await _identityClient.GetAccountsAsync().ConfigureAwait(false);
+            var accounts = await _identityClient.GetAccountsAsync();
 
             foreach (var account in accounts)
             {
@@ -39,7 +39,7 @@ namespace MailApp.Services.Outlook
                     var authResult = await _identityClient.AcquireTokenSilent(s_outlookLoginScopes, account)
                     .ExecuteAsync(cancellationToken);
 
-                    currentMailService = new OutlookMailService(authResult.Account, authResult.AccessToken);
+                    currentMailService = new OutlookMailService(this, authResult.Account, authResult.AccessToken);
                 }
                 catch { }
 
@@ -78,12 +78,24 @@ namespace MailApp.Services.Outlook
                     .WithPrompt(Microsoft.Identity.Client.Prompt.SelectAccount)
                     .ExecuteAsync();
 
-                return new OutlookMailService(authResult.Account, authResult.AccessToken);
+                return new OutlookMailService(this, authResult.Account, authResult.AccessToken);
             }
             catch (Exception)
             {
                 return null;
             }
+        }
+
+        public Task LogoutAsync(IMailService mailService, CancellationToken cancellationToken = default)
+        {
+            if (mailService is not OutlookMailService outlookMailService)
+            {
+                throw new ArgumentException("Specified service is not outlook mail service", nameof(mailService));
+            }
+
+            _identityClient.RemoveAsync(outlookMailService.Account);
+
+            return Task.CompletedTask;
         }
     }
 }

@@ -14,6 +14,8 @@ namespace MailApp.Services
     /// </summary>
     public interface IMailService
     {
+        public IMailAuthService AuthService { get; }
+
         /// <summary>
         /// 服务名称
         /// </summary>
@@ -122,5 +124,64 @@ namespace MailApp.Services
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
         public IAsyncEnumerable<MailMessage> QueryMessagesInFolder(MailFolder folder, MailMessageQuery query, int skip, int take, CancellationToken cancellationToken = default);
+
+        /// <summary>
+        /// 创建文件夹
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        public Task<MailFolder> CreateFolderAsync(string name, CancellationToken cancellationToken = default);
+
+        /// <summary>
+        /// 创建子文件夹
+        /// </summary>
+        /// <param name="parentFolder"></param>
+        /// <param name="name"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        public Task<MailFolder> CreateSubFolderAsync(MailFolder parentFolder, string name, CancellationToken cancellationToken = default);
+
+        /// <summary>
+        /// 删除目录
+        /// </summary>
+        /// <param name="folder"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        public Task DeleteFolderAsync(MailFolder folder, CancellationToken cancellationToken = default);
+
+        /// <summary>
+        /// 删除消息
+        /// </summary>
+        /// <param name="message"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        public Task DeleteMessageAsync(MailMessage message, CancellationToken cancellationToken = default);
+
+        /// <summary>
+        /// 存档消息
+        /// </summary>
+        /// <param name="message"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        public Task ArchiveMessageAsync(MailMessage message, CancellationToken cancellationToken = default);
+
+        /// <summary>
+        /// 将消息移动到指定目录
+        /// </summary>
+        /// <param name="message"></param>
+        /// <param name="destinationFolder"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        public Task MoveMessageAsync(MailMessage message, MailFolder destinationFolder, CancellationToken cancellationToken = default);
+
+        /// <summary>
+        /// 将消息移动到指定目录
+        /// </summary>
+        /// <param name="message"></param>
+        /// <param name="destinationFolder"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        public Task<MailMessage> CopyMessageAsync(MailMessage message, MailFolder destinationFolder, CancellationToken cancellationToken = default);
     }
 }

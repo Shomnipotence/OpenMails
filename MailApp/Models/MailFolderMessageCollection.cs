@@ -14,8 +14,8 @@ namespace MailApp.Models
     /// </summary>
     public class MailFolderMessageCollection : ObservableCollection<MailMessage>, ISupportIncrementalLoading
     {
-        private bool _busy = false;
         private bool _hasMoreItems = true;
+        private Task? _lastLoadingTask = null;
 
         public MailFolderMessageCollection(IMailService mailService, MailFolder folder)
         {
@@ -28,12 +28,13 @@ namespace MailApp.Models
             int skip = Count;
             int loadedCount = 0;
 
-            if (_busy)
-                throw new InvalidOperationException("Busy now");
+            if (_lastLoadingTask is not null)
+            {
+                await _lastLoadingTask;
+            }
 
             try
             {
-                _busy = true;
                 await foreach (var message in MailService.GetMessagesInFolder(Folder, skip, take, default))
                 {
                     Add(message);
@@ -55,15 +56,13 @@ namespace MailApp.Models
                     Count = 0
                 };
             }
-            finally
-            {
-                _busy = false;
-            }
         }
 
         public IAsyncOperation<LoadMoreItemsResult> LoadMoreItemsAsync(uint count)
         {
-            return LoadMessagesAsync((int)count).AsAsyncOperation();
+            var task = LoadMessagesAsync((int)count);
+            _lastLoadingTask = task;
+            return task.AsAsyncOperation();
         }
 
         public bool HasMoreItems => _hasMoreItems;

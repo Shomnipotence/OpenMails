@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using MailApp.Models;
 using MailApp.Services;
 using MailApp.ViewModels;
@@ -23,37 +25,43 @@ using Windows.UI.Xaml.Navigation;
 
 namespace MailApp.Views
 {
-    /// <summary>
-    /// An empty page that can be used on its own or navigated to within a Frame.
-    /// </summary>
+    [ObservableObject]
     public sealed partial class MailsPage : Page
     {
         private WebView2? _webView2;
+        private MenuFlyout? _mailMessageMenuFlyout;
+        private ScrollViewer? _mailMessageScrollViewer;
 
         public MailsPage()
         {
             DataContext = this;
             ViewModel = App.Host.Services.GetRequiredService<MailsPageViewModel>();
+            Strings = App.Host.Services.GetRequiredService<I18nStrings>();
 
             this.InitializeComponent();
         }
 
         public MailsPageViewModel ViewModel { get; }
+        public I18nStrings Strings { get; }
 
-        public void UpdateContent(IMailService? mailService, MailFolder? mailFolder)
+        public void UpdateContent(IMailService? mailService, IEnumerable<MailFolder>? allFolders, MailFolder? selectedFolder)
         {
             ViewModel.MailService = mailService;
-            ViewModel.Folder = mailFolder;
+            ViewModel.AllFolders = allFolders;
+            ViewModel.Folder = selectedFolder;
         }
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
             base.OnNavigatedTo(e);
 
-            if (e.Parameter is not MailServiceAndFolder mailServiceAndFolder)
+            if (e.Parameter is not MailServiceStatus mailServiceStatus)
                 return;
 
-            UpdateContent(mailServiceAndFolder.Service, mailServiceAndFolder.Folder);
+            UpdateContent(
+                mailServiceStatus.MailService,
+                mailServiceStatus.AllFolders,
+                mailServiceStatus.SelectedFolder);
         }
 
         private void Page_Loading(FrameworkElement sender, object args)
@@ -86,14 +94,19 @@ namespace MailApp.Views
         /// <summary>
         /// WebView2 CoreWebView2 初始化完毕时加载当前选中邮件
         /// </summary>
-        /// <param name="sender"></param>
+        /// <param name="webview2"></param>
         /// <param name="args"></param>
-        private void WebView2_CoreWebView2Initialized(Microsoft.UI.Xaml.Controls.WebView2 sender, Microsoft.UI.Xaml.Controls.CoreWebView2InitializedEventArgs args)
+        private void WebView2_CoreWebView2Initialized(Microsoft.UI.Xaml.Controls.WebView2 webview2, Microsoft.UI.Xaml.Controls.CoreWebView2InitializedEventArgs args)
         {
-            if (sender.Tag is not MailMessage mailMessage)
+            if (webview2.Tag is not MailMessage mailMessage)
                 return;
 
-            sender.CoreWebView2.NavigateToString(mailMessage.Content.Text);
+            webview2.CoreWebView2.Settings.AreDefaultContextMenusEnabled = false;
+            webview2.CoreWebView2.Settings.AreDevToolsEnabled = false;
+            webview2.CoreWebView2.Settings.IsZoomControlEnabled = false;
+            webview2.CoreWebView2.Settings.IsStatusBarEnabled = false;
+
+            webview2.CoreWebView2.NavigateToString(mailMessage.Content.Text);
         }
 
         /// <summary>
@@ -121,13 +134,72 @@ namespace MailApp.Views
         /// <param name="e"></param>
         private void MailMessageListDetailsView_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (_webView2 is null || _webView2.CoreWebView2 is null)
-                return;
             if (sender is not ListDetailsView listDetailsView ||
                 listDetailsView.SelectedItem is not MailMessage selectedMessage)
                 return;
 
-            _webView2.CoreWebView2.NavigateToString(selectedMessage.Content.Text);
+            if (_webView2 is not null && _webView2.CoreWebView2 is not null)
+            {
+                _webView2.CoreWebView2.NavigateToString(selectedMessage.Content.Text);
+            }
+
+            if (_mailMessageScrollViewer is not null)
+            {
+                _mailMessageScrollViewer.ChangeView(0, 0, _mailMessageScrollViewer.ZoomFactor, true);
+            }
+        }
+
+        private void ScrollViewer_Loaded(object sender, RoutedEventArgs e)
+        {
+            _mailMessageScrollViewer = sender as ScrollViewer;
+        }
+
+        private void WebView2_PointerWheelChanged(object sender, PointerRoutedEventArgs e)
+        {
+            e.Handled = true;
+
+            if (_mailMessageScrollViewer is not null)
+            {
+                var point = e.GetCurrentPoint(_mailMessageScrollViewer);
+                _mailMessageScrollViewer.ChangeView(
+                    _mailMessageScrollViewer.HorizontalOffset,
+                    _mailMessageScrollViewer.VerticalOffset - point.Properties.MouseWheelDelta,
+                    _mailMessageScrollViewer.ZoomFactor,
+                    true);
+            }
+        }
+
+        private void MoveToMenuItem_MailMessageMoved(object sender, Models.Events.MailMessageMovedEventArgs e)
+        {
+            if (e.OriginFolderId == ViewModel.Folder?.Id)
+            {
+                ViewModel.Messages?.Remove(e.MailMessage);
+            }
+
+            if (e.MailMessage == ViewModel.SelectedMessage)
+            {
+                ViewModel.SelectedMessage = null;
+            }
+
+            ViewModel.ClearFolderCache(e.NewFolderId);
+        }
+
+        private void CopyToMenuItem_MailMessageCopied(object sender, Models.Events.MailMessageCopiedEventArgs e)
+        {
+            ViewModel.ClearFolderCache(e.NewMailMessage.ContainingFolderId);
+        }
+
+        private void MailMessageMenuFlyout_Opened(object sender, object e)
+        {
+            _mailMessageMenuFlyout = sender as MenuFlyout;
+        }
+
+        private void MailMessageMenuItem_ActionInvoked(object sender, EventArgs e)
+        {
+            if (_mailMessageMenuFlyout is not null)
+            {
+                _mailMessageMenuFlyout.Hide();
+            }
         }
     }
 }

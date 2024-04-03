@@ -44,14 +44,17 @@ namespace MailApp.Behaviors
         /// <summary>
         /// 导航开始, 重置高度
         /// </summary>
-        /// <param name="sender"></param>
+        /// <param name="coreWebView2"></param>
         /// <param name="args"></param>
-        private void CoreWebView2_NavigationStarting(CoreWebView2 sender, CoreWebView2NavigationStartingEventArgs args)
+        private async void CoreWebView2_NavigationStarting(CoreWebView2 coreWebView2, CoreWebView2NavigationStartingEventArgs args)
         {
             if (args.Cancel == true)
                 return;
 
             AssociatedObject.Height = DefaultHeight;
+            var nowHeight = await GetCoreWebView2BodyHeight(coreWebView2);
+            if (nowHeight > DefaultHeight)
+                AssociatedObject.Height = nowHeight;
         }
 
         /// <summary>

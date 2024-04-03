@@ -17,13 +17,23 @@
     xmlns:tpselector="using:MailApp.TemplateSelectors"
     xmlns:i="using:Microsoft.Xaml.Interactivity"
     xmlns:mybehaviors="using:MailApp.Behaviors"
+    xmlns:controls="using:MailApp.Controls"
+    xmlns:utils="using:MailApp.Utilities"
     mc:Ignorable="d"
     Loading="Page_Loading"
     d:Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
     <Page.Resources>
 
+        <utils:BindingProxy x:Key="DataProxy"
+                            Data="{x:Bind}"/>
+
         <converters:BooleanToVisibilityConverter x:Key="Boolean2VisibilityConverter"/>
+
+        <converters:ValueConverterGroup x:Key="Collection2VisibilityConverter">
+            <converters:CollectionToBooleanConverter/>
+            <converters:BooleanToVisibilityConverter/>
+        </converters:ValueConverterGroup>
 
         <converters:ValueConverterGroup x:Key="Value2VisibilityConverter">
             <converters:ValueToBooleanConverter/>
@@ -34,6 +44,7 @@
             <converters:BooleanInvertConverter/>
             <converters:BooleanToVisibilityConverter/>
         </converters:ValueConverterGroup>
+
     </Page.Resources>
 
     <Grid>
@@ -94,7 +105,10 @@
             <!--邮件消息列表元素模板-->
             <mstkui:ListDetailsView.ItemTemplate>
                 <DataTemplate x:DataType="m:MailMessage">
-                    <StackPanel Orientation="Horizontal" Spacing="12" Margin="0 8">
+                    <StackPanel Spacing="12" 
+                                Margin="0 8"
+                                Orientation="Horizontal" 
+                                Background="Transparent">
                         <PersonPicture Width="32"
                                        DisplayName="{x:Bind Sender.DisplayName}">
                             <i:Interaction.Behaviors>
@@ -126,15 +140,124 @@
                                                TextTrimming="CharacterEllipsis"
                                                MaxLines="1"/>
                         </StackPanel>
+                        <StackPanel.ContextFlyout>
+                            <!--邮件右键菜单-->
+                            <MenuFlyout Opened="MailMessageMenuFlyout_Opened">
+                                <MenuFlyoutItem Text="{Binding Source={StaticResource DataProxy},Path=Data.Strings.StringDelete}"
+                                                Icon="Delete"
+                                                Command="{Binding Source={StaticResource DataProxy},Path=Data.ViewModel.DeleteMessageCommand}"
+                                                CommandParameter="{x:Bind}">
+                                </MenuFlyoutItem>
+                                <MenuFlyoutItem Text="{Binding Source={StaticResource DataProxy},Path=Data.Strings.StringArchive}"
+                                                Command="{Binding Source={StaticResource DataProxy},Path=Data.ViewModel.ArchiveMessageCommand}"
+                                                CommandParameter="{x:Bind}">
+                                    <MenuFlyoutItem.Icon>
+                                        <FontIcon FontFamily="Segoe Fluent Icons"
+                                                  Glyph="&#xE7B8;" />
+                                    </MenuFlyoutItem.Icon>
+                                </MenuFlyoutItem>
+                                <!--旧 Mail 与新 Outlook 应用中均不存在 Forward 选项-->
+                                <!--<MenuFlyoutItem Text="{Binding Source={StaticResource DataProxy},Path=Data.Strings.StringForward}"
+                                                Icon="Forward">
+                                </MenuFlyoutItem>-->
+                                <MenuFlyoutItem Text="{Binding Source={StaticResource DataProxy},Path=Data.Strings.StringReply}"
+                                                Icon="Forward"/>
+                                <MenuFlyoutSubItem Text="{Binding Source={StaticResource DataProxy},Path=Data.Strings.StringMove}">
+                                    <MenuFlyoutSubItem.Icon>
+                                        <FontIcon FontFamily="Segoe Fluent Icons"
+                                                  Glyph="&#xE19C;" />
+                                    </MenuFlyoutSubItem.Icon>
+                                    <MenuFlyoutItem Tag="{x:Bind}">
+                                        <MenuFlyoutItem.Template>
+                                            <ControlTemplate TargetType="MenuFlyoutItem">
+                                                <controls:MoveToMenuItem Margin="10" 
+                                                                         MailService="{Binding Source={StaticResource DataProxy},Path=Data.ViewModel.MailService}"
+                                                                         AllFolders="{Binding Source={StaticResource DataProxy},Path=Data.ViewModel.AllFolders}"
+                                                                         Message="{TemplateBinding Tag}"
+                                                                         ActionInvoked="MailMessageMenuItem_ActionInvoked"
+                                                                         MailMessageMoved="MoveToMenuItem_MailMessageMoved"/>
+                                            </ControlTemplate>
+                                        </MenuFlyoutItem.Template>
+                                    </MenuFlyoutItem>
+                                </MenuFlyoutSubItem>
+                                <MenuFlyoutSubItem Text="{Binding Source={StaticResource DataProxy},Path=Data.Strings.StringCopy}">
+                                    <MenuFlyoutSubItem.Icon>
+                                        <FontIcon FontFamily="Segoe Fluent Icons"
+                                                  Glyph="&#xE19C;" />
+                                    </MenuFlyoutSubItem.Icon>
+                                    <MenuFlyoutItem Tag="{x:Bind}">
+                                        <MenuFlyoutItem.Template>
+                                            <ControlTemplate TargetType="MenuFlyoutItem">
+                                                <controls:CopyToMenuItem Margin="10" 
+                                                                         MailService="{Binding Source={StaticResource DataProxy},Path=Data.ViewModel.MailService}"
+                                                                         AllFolders="{Binding Source={StaticResource DataProxy},Path=Data.ViewModel.AllFolders}"
+                                                                         Message="{TemplateBinding Tag}"
+                                                                         ActionInvoked="MailMessageMenuItem_ActionInvoked"
+                                                                         MailMessageCopied="CopyToMenuItem_MailMessageCopied"/>
+                                            </ControlTemplate>
+                                        </MenuFlyoutItem.Template>
+                                    </MenuFlyoutItem>
+                                </MenuFlyoutSubItem>
+                                <MenuFlyoutItem Text="{Binding Source={StaticResource DataProxy},Path=Data.Strings.StringMark}"
+                                                Icon="Flag" />
+                                <MenuFlyoutItem Text="{Binding Source={StaticResource DataProxy},Path=Data.Strings.StringMarkAsRead}"
+                                                Icon="Read" />
+                                <MenuFlyoutItem Text="{Binding Source={StaticResource DataProxy},Path=Data.Strings.StringIgnore}"
+                                                Icon="Delete" />
+                                <MenuFlyoutSeparator />
+                                <MenuFlyoutItem Text="{Binding Source={StaticResource DataProxy},Path=Data.Strings.StringMarkAsJunkMail}"
+                                                Icon="Mail" />
+                                <MenuFlyoutItem Text="移动到其他收件箱">
+                                    <MenuFlyoutItem.Icon>
+                                        <FontIcon FontFamily="Segoe Fluent Icons"
+                                                  Glyph="&#xE19C;" />
+                                    </MenuFlyoutItem.Icon>
+                                </MenuFlyoutItem>
+                                <MenuFlyoutItem Text="总是移动到其他收件箱">
+                                    <MenuFlyoutItem.Icon>
+                                        <FontIcon FontFamily="Segoe Fluent Icons"
+                                                  Glyph="&#xE19C;" />
+                                    </MenuFlyoutItem.Icon>
+                                </MenuFlyoutItem>
+                            </MenuFlyout>
+                        </StackPanel.ContextFlyout>
                     </StackPanel>
                 </DataTemplate>
             </mstkui:ListDetailsView.ItemTemplate>
+
+            <mstkui:ListDetailsView.ListCommandBar>
+                <CommandBar Background="Transparent"
+                            ClosedDisplayMode="Compact"
+                            IsDynamicOverflowEnabled="False"
+                            OverflowButtonVisibility="Collapsed">
+                    <CommandBar.Resources>
+                        <Style BasedOn="{StaticResource DefaultAppBarButtonStyle}"
+                               TargetType="AppBarButton">
+                            <Setter Property="Width"
+                                    Value="43" />
+                        </Style>
+                    </CommandBar.Resources>
+                    <AppBarButton x:Name="AppBarButton_List_Filter"
+                        Icon="Filter"
+                        Label="Filter" />
+                    <AppBarButton x:Name="AppBarButton_List_Refresh"
+                        Icon="Refresh"
+                        Label="Refresh"/>
+                    <AppBarButton x:Name="AppBarButton_List_MultiSelect"
+                        Label="MultiSelect">
+                        <AppBarButton.Icon>
+                            <FontIcon Glyph="&#xE762;" />
+                        </AppBarButton.Icon>
+                    </AppBarButton>
+                </CommandBar>
+            </mstkui:ListDetailsView.ListCommandBar>
 
             <!--邮件显示-->
             <mstkui:ListDetailsView.DetailsTemplate>
                 <DataTemplate x:DataType="m:MailMessage">
                     <ScrollViewer Padding="48 26 48 0"
-                                          x:Name="mailMessageScrollViewer">
+                                  Loaded="ScrollViewer_Loaded">
+
                         <StackPanel>
                             <Grid Margin="0 0 0 0">
 
@@ -164,7 +287,7 @@
                                 <StackPanel Orientation="Horizontal" Spacing="8">
                                     <TextBlock Text="To"
                                                        FontWeight="Bold"/>
-                                    <ItemsControl ItemsSource="{x:Bind To}">
+                                    <ItemsControl ItemsSource="{x:Bind To,Mode=OneWay}">
                                         <ItemsControl.ItemsPanel>
                                             <ItemsPanelTemplate>
                                                 <mstkui:WrapPanel HorizontalSpacing="12"
@@ -185,10 +308,10 @@
 
                                 <!--抄送-->
                                 <StackPanel Orientation="Horizontal" Spacing="8"
-                                            Visibility="{x:Bind Cc,Converter={StaticResource Collection2VisibilityConverter}}">
+                                            Visibility="{x:Bind Cc,Mode=OneWay,Converter={StaticResource Collection2VisibilityConverter}}">
                                     <TextBlock Text="CC"
                                                FontWeight="Bold"/>
-                                    <ItemsControl ItemsSource="{x:Bind To}">
+                                    <ItemsControl ItemsSource="{x:Bind Cc,Mode=OneWay}">
                                         <ItemsControl.ItemsPanel>
                                             <ItemsPanelTemplate>
                                                 <mstkui:WrapPanel HorizontalSpacing="12"
@@ -209,32 +332,84 @@
                             </mstkui:WrapPanel>
 
                             <!--邮件发送者以及邮件操作菜单-->
-                            <Grid Margin="0 36 0 0">
-                                <StackPanel Orientation="Horizontal" Spacing="8">
-                                    <PersonPicture Width="32"
+                            <CommandBar Margin="0 36 0 0">
+                                <CommandBar.Content>
+                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                        <PersonPicture Width="32"
                                                    DisplayName="{x:Bind Sender.DisplayName}">
-                                        <i:Interaction.Behaviors>
-                                            <mybehaviors:EmailAddressPersonPictureBehavior EmailAddress="{x:Bind Sender.EmailAddress}"/>
-                                        </i:Interaction.Behaviors>
-                                    </PersonPicture>
-                                    <StackPanel>
-                                        <TextBlock Text="{x:Bind Sender.DisplayName}"/>
-                                        <TextBlock Text="{x:Bind Sender.EmailAddress}"
+                                            <i:Interaction.Behaviors>
+                                                <mybehaviors:EmailAddressPersonPictureBehavior EmailAddress="{x:Bind Sender.EmailAddress,Mode=OneWay}"/>
+                                            </i:Interaction.Behaviors>
+                                        </PersonPicture>
+                                        <StackPanel>
+                                            <TextBlock Text="{x:Bind Sender.DisplayName}"/>
+                                            <TextBlock Text="{x:Bind Sender.EmailAddress}"
                                                    Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"/>
+                                        </StackPanel>
                                     </StackPanel>
-                                </StackPanel>
-                            </Grid>
+                                </CommandBar.Content>
+                                <CommandBar.Resources>
+                                    <Style TargetType="AppBarButton"
+                                               BasedOn="{StaticResource DefaultAppBarButtonStyle}">
+                                        <Setter Property="Width"
+                                                    Value="42" />
+                                    </Style>
+                                </CommandBar.Resources>
+                                <AppBarButton Icon="MailReply"
+                                                  Label="Reply">
+                                    <AppBarButton.KeyboardAccelerators>
+                                        <KeyboardAccelerator Key="R"
+                                                                 IsEnabled="False"
+                                                                 Modifiers="Shift" />
+                                    </AppBarButton.KeyboardAccelerators>
+                                </AppBarButton>
+                                <AppBarButton Icon="MailReplyAll"
+                                                  Label="Reply all">
+                                    <AppBarButton.KeyboardAccelerators>
+                                        <KeyboardAccelerator Key="A"
+                                                                 IsEnabled="False"
+                                                                 Modifiers="Shift" />
+                                    </AppBarButton.KeyboardAccelerators>
+                                </AppBarButton>
+                                <AppBarButton Icon="MailForward"
+                                                  Label="Forward">
+                                    <AppBarButton.KeyboardAccelerators>
+                                        <KeyboardAccelerator Key="F"
+                                                                 IsEnabled="False"
+                                                                 Modifiers="Shift" />
+                                    </AppBarButton.KeyboardAccelerators>
+                                </AppBarButton>
+                                <AppBarButton Icon="Delete"
+                                                  Label="Delete">
+                                    <AppBarButton.KeyboardAccelerators>
+                                        <KeyboardAccelerator Key="D"
+                                                                 IsEnabled="False"
+                                                                 Modifiers="Shift" />
+                                    </AppBarButton.KeyboardAccelerators>
+                                </AppBarButton>
+                                <CommandBar.SecondaryCommands>
+                                    <AppBarButton Icon="Setting"
+                                                      Label="Settings">
+                                        <AppBarButton.KeyboardAccelerators>
+                                            <KeyboardAccelerator Key="I"
+                                                                     IsEnabled="False"
+                                                                     Modifiers="Shift" />
+                                        </AppBarButton.KeyboardAccelerators>
+                                    </AppBarButton>
+                                </CommandBar.SecondaryCommands>
+                            </CommandBar>
 
                             <ui:WebView2 Tag="{x:Bind Mode=OneWay}"
                                          Margin="0 8 0 0"
                                          MinHeight="500"
                                          Loaded="WebView2_Loaded"
+                                         PointerWheelChanged="WebView2_PointerWheelChanged"
                                          CoreWebView2Initialized="WebView2_CoreWebView2Initialized"
                                          NavigationStarting="WebView2_NavigationStarting">
                                 <i:Interaction.Behaviors>
                                     <mybehaviors:WebView2AutoHeightBehavior DefaultHeight="500"
-                                                                                    ExtraHeight="50"/>
-                                    <!--<mybehaviors:WebView2RedirectScrollingBehavior Target="{Binding ElementName=mailMessageScrollViewer}"/>-->
+                                                                            ExtraHeight="50"/>
+                                    <mybehaviors:WebView2DisableBodyScrollBarBehavior/>
                                 </i:Interaction.Behaviors>
                             </ui:WebView2>
                         </StackPanel>

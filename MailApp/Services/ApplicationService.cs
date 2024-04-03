@@ -12,6 +12,7 @@ using Windows.UI;
 using Windows.UI.Xaml;
 using Windows.ApplicationModel.Core;
 using MailApp.ViewModels;
+using MailApp.Services.Gmail;
 
 namespace MailApp.Services
 {
@@ -22,16 +23,13 @@ namespace MailApp.Services
     public class ApplicationService : IHostedService
     {
         private readonly NavigationService _navigationService;
-        private readonly StorageService _storageService;
         private readonly AuthService _authService;
 
         public ApplicationService(
             NavigationService navigationService,
-            StorageService storageService,
             AuthService authService)
         {
             _navigationService = navigationService;
-            _storageService = storageService;
             _authService = authService;
         }
 
@@ -54,6 +52,7 @@ namespace MailApp.Services
 
             // 初始化所有邮箱验证服务
             _authService.MailAuthServices.Add(new OutlookAuthService());
+            _authService.MailAuthServices.Add(new GMailAuthService());
 
             // 获取所有已经登陆的邮箱服务
             List<IMailService> allLoginedServices = new();
@@ -77,6 +76,11 @@ namespace MailApp.Services
 
         public Task StopAsync(CancellationToken cancellationToken)
         {
+            var cacheService = App.Host.Services
+                .GetRequiredService<CacheService>();
+
+            cacheService.CloseAll();
+
             return Task.CompletedTask;
         }
     }

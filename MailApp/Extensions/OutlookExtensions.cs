@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using MailApp.Enums;
@@ -9,6 +7,7 @@ using Microsoft.Kiota.Abstractions;
 
 namespace MailApp.Extensions
 {
+
     /// <summary>
     /// Outlook 所使用的拓展函数
     /// </summary>
@@ -33,9 +32,9 @@ namespace MailApp.Extensions
         /// </summary>
         /// <param name="folder"></param>
         /// <returns></returns>
-        public static Models.MailFolder ToCommonMailFolder(this Microsoft.Graph.Models.MailFolder folder, MailFolderIcon icon = MailFolderIcon.Default)
+        public static Models.MailFolder ToAppMailFolder(this Microsoft.Graph.Models.MailFolder folder, MailFolderIcon icon = MailFolderIcon.Default, bool isCommonFolder = false)
         {
-            return new MailApp.Models.MailFolder(folder.Id, folder.DisplayName, folder.DisplayName, icon, folder.ParentFolderId, (folder.TotalItemCount ?? 0) == 0);
+            return new MailApp.Models.MailFolder(folder.Id, folder.DisplayName, folder.DisplayName, icon, folder.ParentFolderId, isCommonFolder, (folder.TotalItemCount ?? 0) == 0);
         }
 
         /// <summary>
@@ -43,7 +42,7 @@ namespace MailApp.Extensions
         /// </summary>
         /// <param name="message"></param>
         /// <returns></returns>
-        public static MailMessage ToCommonMailMessage(this Microsoft.Graph.Models.Message message)
+        public static MailMessage ToAppMailMessage(this Microsoft.Graph.Models.Message message)
         {
             return new MailMessage(
                     message.Id,

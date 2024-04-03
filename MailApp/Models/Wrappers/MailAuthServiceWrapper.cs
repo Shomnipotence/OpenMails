@@ -7,6 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 using MailApp.Services;
 using MailApp.ViewModels;
 using MailApp.Views;
+using MailApp.Abstraction;
 
 namespace MailApp.Models
 {
@@ -23,9 +24,13 @@ namespace MailApp.Models
         public string Name => MailAuthService.Name;
 
         [RelayCommand]
-        public async Task Login(CancellationToken cancellationToken)
+        public async Task Login(ILoginHandler loginHandler, CancellationToken cancellationToken)
         {
-            var loginPage = App.Host.Services.GetRequiredService<LoginPage>();
+            if (loginHandler is not null)
+            {
+                loginHandler.OnLoginStarted();
+            }
+
             var globalData = App.Host.Services.GetRequiredService<ApplicationGlobalData>();
             var newMailService = await MailAuthService.LoginAsync(cancellationToken);
 
@@ -37,7 +42,10 @@ namespace MailApp.Models
                     globalData.MailServices.Add(newMailService);
                 }
 
-                loginPage.OnLoginCompleted();
+                if (loginHandler is not null)
+                {
+                    loginHandler.OnLoginCompleted(newMailService);
+                }
             }
         }
     }

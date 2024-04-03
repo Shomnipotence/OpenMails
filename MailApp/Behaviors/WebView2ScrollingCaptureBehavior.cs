@@ -4,16 +4,17 @@ using System;
 using Microsoft.Web.WebView2.Core;
 using Windows.UI.Xaml.Controls;
 using System.Text.Json;
+using Windows.Devices.Input;
+using Windows.UI.Xaml.Controls.Primitives;
+using MailApp.Models.Events;
 
 #nullable enable
 
 namespace MailApp.Behaviors
 {
-    public class WebView2RedirectScrollingBehavior : WebView2CoreWebViewBehavior
+    public class WebView2ScrollingCaptureBehavior : WebView2CoreWebViewBehavior
     {
         const string MessageKind = "Scroll";
-
-        public ScrollViewer? Target { get; set; }
 
         protected override void OnCoreWebView2Ok(CoreWebView2 coreWebView2)
         {
@@ -47,11 +48,12 @@ namespace MailApp.Behaviors
                 if (message.Kind != MessageKind)
                     return;
 
-                if (Target is not null)
-                    Target.ChangeView(Target.HorizontalOffset, Target.VerticalOffset + message.DeltaY, Target.ZoomFactor);
+                Wheel?.Invoke(this, new WebView2WheelEventArgs(message.DeltaX, message.DeltaY));
             }
             catch { }
         }
+
+        public event EventHandler<WebView2WheelEventArgs>? Wheel;
 
         struct Message
         {

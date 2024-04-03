@@ -18,9 +18,14 @@
     xmlns:i="using:Microsoft.Xaml.Interactivity"
     xmlns:mybehaviors="using:MailApp.Behaviors"
     xmlns:globalization="using:System.Globalization"
+    xmlns:utils="using:MailApp.Utilities"
     mc:Ignorable="d"
-    d:Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
-    x:Name="pageSelf">
+    d:Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+
+    <Page.Resources>
+        <utils:BindingProxy x:Key="DataProxy"
+                            Data="{x:Bind}"/>
+    </Page.Resources>
 
     <Grid>
         <StackPanel Margin="48" Spacing="12">
@@ -35,7 +40,11 @@
                 <tkui:SettingsExpander.ItemTemplate>
                     <DataTemplate x:DataType="services:IMailService">
                         <tkui:SettingsCard Header="{x:Bind Name}"
-                                           Description="{x:Bind Address}"/>
+                                           Description="{x:Bind Address}">
+                            <Button Content="Logout"
+                                    Command="{Binding Source={StaticResource DataProxy},Path=Data.LogoutMailCommand}"
+                                    CommandParameter="{x:Bind}"/>
+                        </tkui:SettingsCard>
                     </DataTemplate>
                 </tkui:SettingsExpander.ItemTemplate>
                 <tkui:SettingsExpander.ItemsFooter>
@@ -48,7 +57,8 @@
                 </tkui:SettingsExpander.ItemsFooter>
             </tkui:SettingsExpander>
             <tkui:SettingsCard HeaderIcon="World" 
-                               Header="{x:Bind Strings.StringLanguages,Mode=OneWay}">
+                               Header="{x:Bind Strings.StringLanguages,Mode=OneWay}"
+                               Description="{x:Bind Strings.StringConfigureDisplayLanguage,Mode=OneWay}">
                 <ComboBox ItemsSource="{x:Bind Strings.AllCultures,Mode=OneWay}"
                           SelectedItem="{x:Bind Strings.CurrentCulture,Mode=TwoWay}">
                     <ComboBox.ItemTemplate>

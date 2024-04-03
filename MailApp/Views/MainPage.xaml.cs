@@ -52,18 +52,18 @@ namespace MailApp.Views
 
         private void NavigationView_SelectionChanged(Microsoft.UI.Xaml.Controls.NavigationView sender, Microsoft.UI.Xaml.Controls.NavigationViewSelectionChangedEventArgs args)
         {
-            if (sender.SelectedItem is not MailFolderWrapper folderWrapper)
+            if (sender.SelectedItem is not TreeNode<MailFolder> folderNode)
                 return;
 
             if (navigationFrame.Content is MailsPage currentMailsPage)
             {
-                currentMailsPage.UpdateContent(ViewModel.SelectedMailService, folderWrapper.MailFolder);
+                currentMailsPage.UpdateContent(ViewModel.SelectedMailService, ViewModel.CurrentAllMailFolders, folderNode.Value);
             }
             else
             {
                 navigationFrame.Navigate(
                     typeof(MailsPage),
-                    new MailServiceAndFolder(ViewModel.SelectedMailService, folderWrapper.MailFolder));
+                    new MailServiceStatus(ViewModel.SelectedMailService, ViewModel.CurrentAllMailFolders, folderNode.Value));
             }
         }
 

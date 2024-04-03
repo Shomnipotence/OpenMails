@@ -13,5 +13,6 @@ namespace MailApp.Services
 
         public IAsyncEnumerable<IMailService> GetLoginedServicesAsync(CancellationToken cancellationToken = default);
         public Task<IMailService?> LoginAsync(CancellationToken cancellationToken = default);
+        public Task LogoutAsync(IMailService mailService, CancellationToken cancellationToken = default);
     }
 }
