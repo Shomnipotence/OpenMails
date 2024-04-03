@@ -172,8 +172,8 @@
     <Compile Include="Services\Outlook\OutlookAuthService.cs" />
     <Compile Include="Services\Outlook\OutlookMailService.cs" />
     <Compile Include="Services\ToastService.cs" />
+    <Compile Include="TemplateSelectors\MailMessageViewTemplateSelector.cs" />
     <Compile Include="TemplateSelectors\NavigationItemTemplateSelector.cs" />
-    <Compile Include="TemplateSelectors\NavigationViewContentTempletTemplateSelector.cs" />
     <Compile Include="Utilities\BindingProxy.cs" />
     <Compile Include="Utilities\IdentifiableUtils.cs" />
     <Compile Include="Utilities\ParentIdentifiableUtils.cs" />

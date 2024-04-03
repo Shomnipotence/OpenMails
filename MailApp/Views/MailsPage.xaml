@@ -28,6 +28,7 @@
         <utils:BindingProxy x:Key="DataProxy"
                             Data="{x:Bind}"/>
 
+        <converters:BooleanInvertConverter x:Key="InvertBooleanConverter"/>
         <converters:BooleanToVisibilityConverter x:Key="Boolean2VisibilityConverter"/>
 
         <converters:ValueConverterGroup x:Key="Collection2VisibilityConverter">
@@ -253,169 +254,175 @@
             </mstkui:ListDetailsView.ListCommandBar>
 
             <!--邮件显示-->
-            <mstkui:ListDetailsView.DetailsTemplate>
-                <DataTemplate x:DataType="m:MailMessage">
-                    <ScrollViewer Padding="48 26 48 0"
-                                  Loaded="ScrollViewer_Loaded">
+            <mstkui:ListDetailsView.DetailsContentTemplateSelector>
+                <tpselector:MailMessageViewTemplateSelector>
+                    <tpselector:MailMessageViewTemplateSelector.NormalTemplate>
+                        <DataTemplate x:DataType="m:MailMessage">
+                            <ScrollViewer Padding="48 26 48 0"
+                                          Loaded="ScrollViewer_Loaded">
 
-                        <StackPanel>
-                            <Grid Margin="0 0 0 0">
+                                <StackPanel>
+                                    <Grid Margin="0 0 0 0">
 
-                                <!--邮件标题-->
-                                <TextBlock Text="{x:Bind Subject}"
+                                        <!--邮件标题-->
+                                        <TextBlock Text="{x:Bind Subject}"
                                                    FontSize="20"
                                                    FontWeight="Bold"/>
-                            </Grid>
+                                    </Grid>
 
-                            <!--邮件发送者, 接收者, 抄送-->
-                            <mstkui:WrapPanel Margin="0 24 0 0"
+                                    <!--邮件发送者, 接收者, 抄送-->
+                                    <mstkui:WrapPanel Margin="0 24 0 0"
                                               HorizontalSpacing="24"
                                               VerticalSpacing="24">
-                                <!--发件人-->
-                                <StackPanel Orientation="Horizontal" Spacing="8"
+                                        <!--发件人-->
+                                        <StackPanel Orientation="Horizontal" Spacing="8"
                                                     Visibility="{x:Bind Sender,Converter={StaticResource Value2VisibilityConverter}}">
-                                    <TextBlock Text="From"
-                                               FontWeight="Bold"/>
-                                    <StackPanel>
-                                        <TextBlock Text="{x:Bind Sender.DisplayName}"/>
-                                        <TextBlock Text="{x:Bind Sender.EmailAddress}"
-                                                   Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"/>
-                                    </StackPanel>
-                                </StackPanel>
-
-                                <!--收件人-->
-                                <StackPanel Orientation="Horizontal" Spacing="8">
-                                    <TextBlock Text="To"
+                                            <TextBlock Text="From"
                                                        FontWeight="Bold"/>
-                                    <ItemsControl ItemsSource="{x:Bind To,Mode=OneWay}">
-                                        <ItemsControl.ItemsPanel>
-                                            <ItemsPanelTemplate>
-                                                <mstkui:WrapPanel HorizontalSpacing="12"
-                                                                  VerticalSpacing="12"/>
-                                            </ItemsPanelTemplate>
-                                        </ItemsControl.ItemsPanel>
-                                        <ItemsControl.ItemTemplate>
-                                            <DataTemplate x:DataType="m:Recipient">
-                                                <StackPanel>
-                                                    <TextBlock Text="{x:Bind DisplayName}"/>
-                                                    <TextBlock Text="{x:Bind EmailAddress}"
-                                                               Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"/>
-                                                </StackPanel>
-                                            </DataTemplate>
-                                        </ItemsControl.ItemTemplate>
-                                    </ItemsControl>
-                                </StackPanel>
-
-                                <!--抄送-->
-                                <StackPanel Orientation="Horizontal" Spacing="8"
-                                            Visibility="{x:Bind Cc,Mode=OneWay,Converter={StaticResource Collection2VisibilityConverter}}">
-                                    <TextBlock Text="CC"
-                                               FontWeight="Bold"/>
-                                    <ItemsControl ItemsSource="{x:Bind Cc,Mode=OneWay}">
-                                        <ItemsControl.ItemsPanel>
-                                            <ItemsPanelTemplate>
-                                                <mstkui:WrapPanel HorizontalSpacing="12"
-                                                                  VerticalSpacing="12"/>
-                                            </ItemsPanelTemplate>
-                                        </ItemsControl.ItemsPanel>
-                                        <ItemsControl.ItemTemplate>
-                                            <DataTemplate x:DataType="m:Recipient">
-                                                <StackPanel>
-                                                    <TextBlock Text="{x:Bind DisplayName}"/>
-                                                    <TextBlock Text="{x:Bind EmailAddress}"
-                                                               Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"/>
-                                                </StackPanel>
-                                            </DataTemplate>
-                                        </ItemsControl.ItemTemplate>
-                                    </ItemsControl>
-                                </StackPanel>
-                            </mstkui:WrapPanel>
-
-                            <!--邮件发送者以及邮件操作菜单-->
-                            <CommandBar Margin="0 36 0 0">
-                                <CommandBar.Content>
-                                    <StackPanel Orientation="Horizontal" Spacing="8">
-                                        <PersonPicture Width="32"
-                                                   DisplayName="{x:Bind Sender.DisplayName}">
-                                            <i:Interaction.Behaviors>
-                                                <mybehaviors:EmailAddressPersonPictureBehavior EmailAddress="{x:Bind Sender.EmailAddress,Mode=OneWay}"/>
-                                            </i:Interaction.Behaviors>
-                                        </PersonPicture>
-                                        <StackPanel>
-                                            <TextBlock Text="{x:Bind Sender.DisplayName}"/>
-                                            <TextBlock Text="{x:Bind Sender.EmailAddress}"
-                                                   Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"/>
+                                            <StackPanel>
+                                                <TextBlock Text="{x:Bind Sender.DisplayName}"/>
+                                                <TextBlock Text="{x:Bind Sender.EmailAddress}"
+                                                           Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"/>
+                                            </StackPanel>
                                         </StackPanel>
-                                    </StackPanel>
-                                </CommandBar.Content>
-                                <CommandBar.Resources>
-                                    <Style TargetType="AppBarButton"
-                                               BasedOn="{StaticResource DefaultAppBarButtonStyle}">
-                                        <Setter Property="Width"
-                                                    Value="42" />
-                                    </Style>
-                                </CommandBar.Resources>
-                                <AppBarButton Icon="MailReply"
-                                                  Label="Reply">
-                                    <AppBarButton.KeyboardAccelerators>
-                                        <KeyboardAccelerator Key="R"
-                                                                 IsEnabled="False"
-                                                                 Modifiers="Shift" />
-                                    </AppBarButton.KeyboardAccelerators>
-                                </AppBarButton>
-                                <AppBarButton Icon="MailReplyAll"
-                                                  Label="Reply all">
-                                    <AppBarButton.KeyboardAccelerators>
-                                        <KeyboardAccelerator Key="A"
-                                                                 IsEnabled="False"
-                                                                 Modifiers="Shift" />
-                                    </AppBarButton.KeyboardAccelerators>
-                                </AppBarButton>
-                                <AppBarButton Icon="MailForward"
-                                                  Label="Forward">
-                                    <AppBarButton.KeyboardAccelerators>
-                                        <KeyboardAccelerator Key="F"
-                                                                 IsEnabled="False"
-                                                                 Modifiers="Shift" />
-                                    </AppBarButton.KeyboardAccelerators>
-                                </AppBarButton>
-                                <AppBarButton Icon="Delete"
-                                                  Label="Delete">
-                                    <AppBarButton.KeyboardAccelerators>
-                                        <KeyboardAccelerator Key="D"
-                                                                 IsEnabled="False"
-                                                                 Modifiers="Shift" />
-                                    </AppBarButton.KeyboardAccelerators>
-                                </AppBarButton>
-                                <CommandBar.SecondaryCommands>
-                                    <AppBarButton Icon="Setting"
-                                                      Label="Settings">
-                                        <AppBarButton.KeyboardAccelerators>
-                                            <KeyboardAccelerator Key="I"
+
+                                        <!--收件人-->
+                                        <StackPanel Orientation="Horizontal" Spacing="8">
+                                            <TextBlock Text="To"
+                                                       FontWeight="Bold"/>
+                                            <ItemsControl ItemsSource="{x:Bind To,Mode=OneWay}">
+                                                <ItemsControl.ItemsPanel>
+                                                    <ItemsPanelTemplate>
+                                                        <mstkui:WrapPanel HorizontalSpacing="12"
+                                                                          VerticalSpacing="12"/>
+                                                    </ItemsPanelTemplate>
+                                                </ItemsControl.ItemsPanel>
+                                                <ItemsControl.ItemTemplate>
+                                                    <DataTemplate x:DataType="m:Recipient">
+                                                        <StackPanel>
+                                                            <TextBlock Text="{x:Bind DisplayName}"/>
+                                                            <TextBlock Text="{x:Bind EmailAddress}"
+                                                                       Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"/>
+                                                        </StackPanel>
+                                                    </DataTemplate>
+                                                </ItemsControl.ItemTemplate>
+                                            </ItemsControl>
+                                        </StackPanel>
+
+                                        <!--抄送-->
+                                        <StackPanel Orientation="Horizontal" Spacing="8"
+                                                    Visibility="{x:Bind Cc,Mode=OneWay,Converter={StaticResource Collection2VisibilityConverter}}">
+                                            <TextBlock Text="CC"
+                                                       FontWeight="Bold"/>
+                                            <ItemsControl ItemsSource="{x:Bind Cc,Mode=OneWay}">
+                                                <ItemsControl.ItemsPanel>
+                                                    <ItemsPanelTemplate>
+                                                        <mstkui:WrapPanel HorizontalSpacing="12"
+                                                                          VerticalSpacing="12"/>
+                                                    </ItemsPanelTemplate>
+                                                </ItemsControl.ItemsPanel>
+                                                <ItemsControl.ItemTemplate>
+                                                    <DataTemplate x:DataType="m:Recipient">
+                                                        <StackPanel>
+                                                            <TextBlock Text="{x:Bind DisplayName}"/>
+                                                            <TextBlock Text="{x:Bind EmailAddress}"
+                                                                       Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"/>
+                                                        </StackPanel>
+                                                    </DataTemplate>
+                                                </ItemsControl.ItemTemplate>
+                                            </ItemsControl>
+                                        </StackPanel>
+                                    </mstkui:WrapPanel>
+
+                                    <!--邮件发送者以及邮件操作菜单-->
+                                    <CommandBar Margin="0 36 0 0">
+                                        <CommandBar.Content>
+                                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                                <PersonPicture Width="32"
+                                                               DisplayName="{x:Bind Sender.DisplayName}">
+                                                    <i:Interaction.Behaviors>
+                                                        <mybehaviors:EmailAddressPersonPictureBehavior EmailAddress="{x:Bind Sender.EmailAddress,Mode=OneWay}"/>
+                                                    </i:Interaction.Behaviors>
+                                                </PersonPicture>
+                                                <StackPanel>
+                                                    <TextBlock Text="{x:Bind Sender.DisplayName}"/>
+                                                    <TextBlock Text="{x:Bind Sender.EmailAddress}"
+                                                               Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"/>
+                                                </StackPanel>
+                                            </StackPanel>
+                                        </CommandBar.Content>
+                                        <CommandBar.Resources>
+                                            <Style TargetType="AppBarButton"
+                                                   BasedOn="{StaticResource DefaultAppBarButtonStyle}">
+                                                <Setter Property="Width"
+                                                        Value="42" />
+                                            </Style>
+                                        </CommandBar.Resources>
+                                        <AppBarButton Icon="MailReply"
+                                                      Label="Reply">
+                                            <AppBarButton.KeyboardAccelerators>
+                                                <KeyboardAccelerator Key="R"
                                                                      IsEnabled="False"
                                                                      Modifiers="Shift" />
-                                        </AppBarButton.KeyboardAccelerators>
-                                    </AppBarButton>
-                                </CommandBar.SecondaryCommands>
-                            </CommandBar>
+                                            </AppBarButton.KeyboardAccelerators>
+                                        </AppBarButton>
+                                        <AppBarButton Icon="MailReplyAll"
+                                                  Label="Reply all">
+                                            <AppBarButton.KeyboardAccelerators>
+                                                <KeyboardAccelerator Key="A"
+                                                                     IsEnabled="False"
+                                                                     Modifiers="Shift" />
+                                            </AppBarButton.KeyboardAccelerators>
+                                        </AppBarButton>
+                                        <AppBarButton Icon="MailForward"
+                                                  Label="Forward">
+                                            <AppBarButton.KeyboardAccelerators>
+                                                <KeyboardAccelerator Key="F"
+                                                                     IsEnabled="False"
+                                                                     Modifiers="Shift" />
+                                            </AppBarButton.KeyboardAccelerators>
+                                        </AppBarButton>
+                                        <AppBarButton Icon="Delete"
+                                                      Label="Delete"
+                                                      Command="{Binding Source={StaticResource DataProxy},Path=Data.ViewModel.DeleteMessageCommand}"
+                                                      CommandParameter="{x:Bind}">
+                                            <AppBarButton.KeyboardAccelerators>
+                                                <KeyboardAccelerator Key="D"
+                                                                     IsEnabled="False"
+                                                                     Modifiers="Shift" />
+                                            </AppBarButton.KeyboardAccelerators>
+                                        </AppBarButton>
+                                        <!--<CommandBar.SecondaryCommands>
+                                            <AppBarButton Icon="Setting"
+                                                          Label="Settings">
+                                                <AppBarButton.KeyboardAccelerators>
+                                                    <KeyboardAccelerator Key="I"
+                                                                         IsEnabled="False"
+                                                                         Modifiers="Shift" />
+                                                </AppBarButton.KeyboardAccelerators>
+                                            </AppBarButton>
+                                        </CommandBar.SecondaryCommands>-->
+                                    </CommandBar>
 
-                            <ui:WebView2 Tag="{x:Bind Mode=OneWay}"
+                                    <ui:WebView2 Tag="{x:Bind Mode=OneWay}"
                                          Margin="0 8 0 0"
                                          MinHeight="500"
                                          Loaded="WebView2_Loaded"
                                          PointerWheelChanged="WebView2_PointerWheelChanged"
                                          CoreWebView2Initialized="WebView2_CoreWebView2Initialized"
                                          NavigationStarting="WebView2_NavigationStarting">
-                                <i:Interaction.Behaviors>
-                                    <mybehaviors:WebView2AutoHeightBehavior DefaultHeight="500"
+                                        <i:Interaction.Behaviors>
+                                            <mybehaviors:WebView2AutoHeightBehavior DefaultHeight="500"
                                                                             ExtraHeight="50"/>
-                                    <mybehaviors:WebView2DisableBodyScrollBarBehavior/>
-                                </i:Interaction.Behaviors>
-                            </ui:WebView2>
-                        </StackPanel>
-                    </ScrollViewer>
-                </DataTemplate>
-            </mstkui:ListDetailsView.DetailsTemplate>
+                                            <mybehaviors:WebView2DisableBodyScrollBarBehavior/>
+                                        </i:Interaction.Behaviors>
+                                    </ui:WebView2>
+                                </StackPanel>
+                            </ScrollViewer>
+                        </DataTemplate>
+                    </tpselector:MailMessageViewTemplateSelector.NormalTemplate>
+                </tpselector:MailMessageViewTemplateSelector>
+            </mstkui:ListDetailsView.DetailsContentTemplateSelector>
 
             <mstkui:ListDetailsView.ListPaneEmptyContent>
                 <StackPanel VerticalAlignment="Center"
@@ -424,14 +431,16 @@
 
                     <!--邮件数量不为空的时候, 显示正在加载-->
                     <StackPanel Spacing="12"
-                                Visibility="{x:Bind ViewModel.Folder.IsEmpty,Mode=OneWay,Converter={StaticResource InvertBoolean2VisibilityConverter}}">
+                                x:Name="folderLoadingIndicator"
+                                x:Load="{x:Bind ViewModel.Folder.IsEmpty,Mode=OneWay,Converter={StaticResource InvertBooleanConverter}}">
                         <ui:ProgressRing/>
                         <TextBlock HorizontalAlignment="Center" Text="Loading..."/>
                     </StackPanel>
 
                     <!--邮件数量为空的时候, 显示无结果-->
                     <StackPanel Spacing="12"
-                                        Visibility="{x:Bind ViewModel.Folder.IsEmpty,Mode=OneWay,Converter={StaticResource Boolean2VisibilityConverter}}">
+                                x:Name="folderEmptyIndicator"
+                                x:Load="{x:Bind ViewModel.Folder.IsEmpty,Mode=OneWay}">
                         <Border Width="100" Height="50"
                                 BorderBrush="Gray"
                                 BorderThickness="1"
@@ -445,6 +454,25 @@
 
                 </StackPanel>
             </mstkui:ListDetailsView.ListPaneEmptyContent>
+
+            <!--当没有选中邮件时显示的内容-->
+            <mstkui:ListDetailsView.NoSelectionContent>
+                <Grid>
+                    <StackPanel Spacing="12"
+                                VerticalAlignment="Center">
+                        <Border Width="100" Height="50"
+                                            BorderBrush="Gray"
+                                            BorderThickness="1"
+                                            CornerRadius="5">
+                            <TextBlock VerticalAlignment="Center"
+                                                   HorizontalAlignment="Center"
+                                                   Text="空邮件的图标"/>
+                        </Border>
+                        <TextBlock HorizontalAlignment="Center" Text="Nothing here"/>
+                    </StackPanel>
+                </Grid>
+            </mstkui:ListDetailsView.NoSelectionContent>
+            
         </mstkui:ListDetailsView>
     </Grid>
 </Page>
